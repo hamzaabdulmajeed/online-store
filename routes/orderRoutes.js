@@ -53,6 +53,63 @@ const router = express.Router();
 //     res.status(500).json({ message: 'Server error', error: error.message });
 //   }
 // });
+// router.post('/', async (req, res) => {
+//   try {
+//     const {
+//       customerName,
+//       email,
+//       phone,
+//       address,
+//       productId,
+//       productImage,
+//       productTitle,
+//       productPrice,
+//       size,
+//       color,
+//       quantity,
+//       specialInstructions,
+//       totalAmount,
+//       user,
+//       paymentMethod,
+//       paymentSlip
+//     } = req.body;
+
+//     // Validation: if payment is online, slip must be present
+//     if (paymentMethod === 'online' && !paymentSlip) {
+//       return res.status(400).json({ message: 'Payment slip is required for online payments.' });
+//     }
+
+//     const newOrder = new Order({
+//       customerName,
+//       email,
+//       phone,
+//       address,
+//       productId,
+//       productImage,
+//       productTitle,
+//       productPrice,
+//       size,
+//       color,
+//       quantity,
+//       specialInstructions,
+//       totalAmount,
+//       user,
+//       paymentMethod,
+//       paymentSlip
+//     });
+
+//     await newOrder.save();
+
+//     res.status(201).json({ 
+//       message: 'Order placed successfully', 
+//       order: newOrder,
+//       orderId: newOrder._id 
+//     });
+//   } catch (error) {
+//     console.error('Error creating order:', error);
+//     res.status(500).json({ message: 'Server error', error: error.message });
+//   }
+// });
 router.post('/', async (req, res) => {
   try {
     const {
@@ -76,7 +133,25 @@ router.post('/', async (req, res) => {
 
     // Validation: if payment is online, slip must be present
     if (paymentMethod === 'online' && !paymentSlip) {
-      return res.status(400).json({ message: 'Payment slip is required for online payments.' });
+      return res.status(400).json({ 
+        message: 'Payment slip is required for online payments.',
+        error: 'PAYMENT_SLIP_REQUIRED'
+      });
+    }
+
+    // Additional validations
+    if (!customerName || !email || !phone || !address) {
+      return res.status(400).json({
+        message: 'Required customer information is missing',
+        error: 'MISSING_CUSTOMER_INFO'
+      });
+    }
+
+    if (!productId || !totalAmount || !user) {
+      return res.status(400).json({
+        message: 'Required order information is missing',
+        error: 'MISSING_ORDER_INFO'
+      });
     }
 
     const newOrder = new Order({
@@ -105,9 +180,33 @@ router.post('/', async (req, res) => {
       order: newOrder,
       orderId: newOrder._id 
     });
+
   } catch (error) {
     console.error('Error creating order:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    
+    // Handle different types of errors
+    if (error.name === 'ValidationError') {
+      const validationErrors = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({ 
+        message: 'Validation failed', 
+        error: 'VALIDATION_ERROR',
+        details: validationErrors
+      });
+    }
+    
+    if (error.name === 'CastError') {
+      return res.status(400).json({ 
+        message: 'Invalid data format', 
+        error: 'INVALID_DATA_FORMAT'
+      });
+    }
+    
+    // Generic server error
+    res.status(500).json({ 
+      message: 'Server error', 
+      error: 'SERVER_ERROR',
+      details: error.message 
+    });
   }
 });
 

@@ -36,7 +36,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const storage = getStorage(app);
+export const storage = getStorage(app);
 
 // Fetch products from your backend
 async function getProducts() {
@@ -62,9 +62,46 @@ async function getProducts() {
   }
 }
 
-// ✅ Upload single image to Firebase Storage
-async function uploadImageAndGetURL(imageFile) {
+ async function uploadPaymentSlipAndGetURL(slipFile) {
   try {
+    // Validate file input
+    if (!slipFile) {
+      throw new Error('No payment slip file provided');
+    }
+    
+    // Check if it's a valid file object
+    if (!slipFile.name || !slipFile.type) {
+      throw new Error('Invalid payment slip file');
+    }
+    
+    // Create unique filename to avoid conflicts
+    const timestamp = Date.now();
+    const filename = `payment_slip_${timestamp}_${slipFile.name}`;
+    const storageRef = ref(storage, 'payment-slips/' + filename);
+    
+    console.log(`Uploading payment slip ${filename}...`);
+    await uploadBytes(storageRef, slipFile);
+    const url = await getDownloadURL(storageRef);
+    console.log(`Payment slip upload complete: ${url}`);
+    return url;
+  } catch (error) {
+    console.error("Error uploading payment slip:", error);
+    throw error;
+  }
+}
+
+ async function uploadImageAndGetURL(imageFile) {
+  try {
+    // Validate file input
+    if (!imageFile) {
+      throw new Error('No image file provided');
+    }
+    
+    // Check if it's a valid file object
+    if (!imageFile.name || !imageFile.type) {
+      throw new Error('Invalid image file');
+    }
+    
     // Create unique filename to avoid conflicts
     const timestamp = Date.now();
     const filename = `${timestamp}_${imageFile.name}`;
@@ -82,41 +119,159 @@ async function uploadImageAndGetURL(imageFile) {
 }
 
 // ✅ Upload multiple images to Firebase Storage
-const uploadAllImages = async (imageFiles) => {
-  if (!imageFiles || imageFiles.length === 0) {
-    console.log("No images to upload");
-    return [];
-  }
-
-  console.log(`Starting upload of ${imageFiles.length} images...`);
-  const urls = [];
-  
+ const uploadAllImages = async (imageFiles) => {
   try {
-    // Upload images sequentially to avoid overwhelming Firebase
-    for (let i = 0; i < imageFiles.length; i++) {
-      const file = imageFiles[i];
-      if (file && file.type.startsWith('image/')) {
-        console.log(`Uploading image ${i + 1}/${imageFiles.length}: ${file.name}`);
-        const url = await uploadImageAndGetURL(file);
-        urls.push(url);
-      } else {
-        console.warn(`Skipping invalid file: ${file?.name || 'unknown'}`);
-      }
+    // Handle different input types
+    if (!imageFiles) {
+      console.log("No images provided to upload");
+      return [];
     }
     
-    console.log(`Successfully uploaded ${urls.length} images`);
-    return urls;
+    // Convert to array if it's not already
+    const filesArray = Array.isArray(imageFiles) ? imageFiles : [imageFiles];
     
+    // Filter out empty or invalid files
+    const validFiles = filesArray.filter(file => {
+      if (!file) {
+        console.warn('Skipping null/undefined file');
+        return false;
+      }
+      
+      // Check if it's a valid file object
+      if (typeof file !== 'object' || !file.name) {
+        console.warn('Skipping invalid file object:', file);
+        return false;
+      }
+      
+      // Check if it has a type property and is an image
+      if (!file.type || !file.type.startsWith('image/')) {
+        console.warn(`Skipping non-image file: ${file.name || 'unknown'} (type: ${file.type || 'unknown'})`);
+        return false;
+      }
+      
+      return true;
+    });
+    
+    if (validFiles.length === 0) {
+      console.log("No valid image files to upload");
+      return [];
+    }
+
+    console.log(`Starting upload of ${validFiles.length} valid images...`);
+    const urls = [];
+
+    // Upload images sequentially to avoid overwhelming Firebase
+    for (let i = 0; i < validFiles.length; i++) {
+      const file = validFiles[i];
+      try {
+        console.log(`Uploading image ${i + 1}/${validFiles.length}: ${file.name}`);
+        const url = await uploadImageAndGetURL(file);
+        urls.push(url);
+      } catch (uploadError) {
+        console.error(`Failed to upload image ${file.name}:`, uploadError);
+        // Continue with other files instead of stopping
+      }
+    }
+
+    console.log(`Successfully uploaded ${urls.length} out of ${validFiles.length} images`);
+    return urls;
   } catch (error) {
     console.error("Error in uploadAllImages:", error);
     throw error;
   }
 };
 
-export const placeOrder = async (orderData, token = null) => {
+// ✅ Upload multiple images to Firebase Storage
+// const uploadAllImages = async (imageFiles) => {
+//   if (!imageFiles || imageFiles.length === 0) {
+//     console.log("No images to upload");
+//     return [];
+//   }
+
+//   console.log(`Starting upload of ${imageFiles.length} images...`);
+//   const urls = [];
+  
+//   try {
+//     // Upload images sequentially to avoid overwhelming Firebase
+//     for (let i = 0; i < imageFiles.length; i++) {
+//       const file = imageFiles[i];
+//       if (file && file.type.startsWith('image/')) {
+//         console.log(`Uploading image ${i + 1}/${imageFiles.length}: ${file.name}`);
+//         const url = await uploadImageAndGetURL(file);
+//         urls.push(url);
+//       } else {
+//         console.warn(`Skipping invalid file: ${file?.name || 'unknown'}`);
+//       }
+//     }
+    
+//     console.log(`Successfully uploaded ${urls.length} images`);
+//     return urls;
+    
+//   } catch (error) {
+//     console.error("Error in uploadAllImages:", error);
+//     throw error;
+//   }
+// };
+
+
+// export const placeOrder = async (orderData, token = null) => {
+//   // If token not provided, try to get it from localStorage
+//   const authToken = token || localStorage.getItem('authToken');
+  
+//   // Ensure userId is present
+//   if (!orderData.user) {
+//     throw new Error('User authentication required. Please login again.');
+//   }
+
+//   // Ensure token is present
+//   if (!authToken) {
+//     throw new Error('Authentication token required. Please login again.');
+//   }
+
+//   try {
+//     const response = await fetch('http://localhost:3001/api/orders', {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//         Authorization: `Bearer ${authToken}`
+//       },
+//       body: JSON.stringify(orderData)
+//     });
+
+//     if (!response.ok) {
+//       // Handle different HTTP status codes
+//       if (response.status === 401) {
+//         throw new Error('Authentication failed. Please login again.');
+//       } else if (response.status === 403) {
+//         throw new Error('Access denied. Please check your permissions.');
+//       } else if (response.status === 400) {
+//         const error = await response.json();
+//         throw new Error(error.error || error.message || 'Invalid order data.');
+//       } else if (response.status >= 500) {
+//         throw new Error('Server error. Please try again later.');
+//       }
+      
+//       const error = await response.json();
+//       throw new Error(error.error || error.message || 'Failed to place order');
+//     }
+
+//     return response.json();
+    
+//   } catch (error) {
+//     // Handle network errors
+//     if (error.name === 'TypeError' && error.message.includes('fetch')) {
+//       throw new Error('Network error. Please check your connection.');
+//     }
+    
+//     // Re-throw the error if it's already a custom error
+//     throw error;
+//   }
+// };
+
+export const placeOrder = async (orderData, productImages = [], paymentSlipFile = null, token = null) => {
   // If token not provided, try to get it from localStorage
   const authToken = token || localStorage.getItem('authToken');
-  
+
   // Ensure userId is present
   if (!orderData.user) {
     throw new Error('User authentication required. Please login again.');
@@ -128,13 +283,39 @@ export const placeOrder = async (orderData, token = null) => {
   }
 
   try {
+    let productImageUrls = [];
+    let paymentSlipUrl = null;
+
+    // Upload product images if provided
+    if (productImages && productImages.length > 0) {
+      console.log('Uploading product images...');
+      productImageUrls = await uploadAllImages(productImages);
+    }
+
+    // Upload payment slip if payment method is online and slip file is provided
+    if (orderData.paymentMethod === 'online') {
+      if (!paymentSlipFile) {
+        throw new Error('Payment slip is required for online payments.');
+      }
+      
+      console.log('Uploading payment slip...');
+      paymentSlipUrl = await uploadPaymentSlipAndGetURL(paymentSlipFile);
+    }
+
+    // Prepare order data with uploaded URLs
+    const finalOrderData = {
+      ...orderData,
+      productImage: productImageUrls.length > 0 ? productImageUrls : orderData.productImage,
+      paymentSlip: paymentSlipUrl
+    };
+
     const response = await fetch('http://localhost:3001/api/orders', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${authToken}`
       },
-      body: JSON.stringify(orderData)
+      body: JSON.stringify(finalOrderData)
     });
 
     if (!response.ok) {
@@ -149,24 +330,23 @@ export const placeOrder = async (orderData, token = null) => {
       } else if (response.status >= 500) {
         throw new Error('Server error. Please try again later.');
       }
-      
+
       const error = await response.json();
       throw new Error(error.error || error.message || 'Failed to place order');
     }
 
     return response.json();
-    
+
   } catch (error) {
     // Handle network errors
     if (error.name === 'TypeError' && error.message.includes('fetch')) {
       throw new Error('Network error. Please check your connection.');
     }
-    
+
     // Re-throw the error if it's already a custom error
     throw error;
   }
 };
-
 
 export const getOrders = async () => {
   const response = await axios.get('/api/orders'); // adjust if auth required
@@ -366,5 +546,5 @@ export const cancelOrder = async (orderId) => {
 };
 
 
-export { getProducts, uploadAllImages, uploadImageAndGetURL };
+export { getProducts, uploadAllImages, uploadImageAndGetURL,uploadPaymentSlipAndGetURL, ref,uploadBytes,getDownloadURL };
 

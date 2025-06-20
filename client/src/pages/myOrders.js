@@ -33,20 +33,20 @@ const MyOrders = () => {
       try {
         setLoading(true);
         setError(null);
-        
+
         const data = await getMyOrders(userId);
         setOrders(data);
-        
+
         // Initialize current image indexes for each order
         const initialIndexes = {};
         data.forEach(order => {
           initialIndexes[order._id] = 0;
         });
         setCurrentImageIndexes(initialIndexes);
-        
+
       } catch (err) {
         console.error('Error fetching orders:', err);
-        
+
         if (err.message.includes('Authentication') || err.message.includes('token')) {
           localStorage.removeItem('isAuthenticated');
           localStorage.removeItem('authToken');
@@ -100,7 +100,7 @@ const MyOrders = () => {
         return [order.product.image];
       }
     }
-    
+
     if (order.productImage) {
       if (Array.isArray(order.productImage) && order.productImage.length > 0) {
         return order.productImage;
@@ -109,7 +109,7 @@ const MyOrders = () => {
         return [order.productImage];
       }
     }
-    
+
     if (order.image) {
       if (Array.isArray(order.image) && order.image.length > 0) {
         return order.image;
@@ -118,7 +118,7 @@ const MyOrders = () => {
         return [order.image];
       }
     }
-    
+
     return [];
   };
 
@@ -157,18 +157,20 @@ const MyOrders = () => {
 
   // Handle starting edit mode
   const handleEditOrder = (order) => {
-    setEditingOrder(order._id);
-    setEditData({
-      customerName: order.customerName || '',
-      email: order.email || '',
-      phone: order.phone || '',
-      address: order.address || '',
-      size: order.size || '',
-      color: order.color || '',
-      quantity: order.quantity || 1,
-      specialInstructions: order.specialInstructions || ''
-    });
-  };
+  setEditingOrder(order._id);
+  setEditData({
+    customerName: order.customerName || '',
+    email: order.email || '',
+    phone: order.phone || '',
+    address: order.address || '',
+    size: order.size || '',
+    color: order.color || '',
+    quantity: order.quantity || 1,
+    paymentMethod: order.paymentMethod || 'cod', // Add this line
+    specialInstructions: order.specialInstructions || ''
+  });
+};
+
 
   // Handle input changes in edit mode
   const handleEditChange = (e) => {
@@ -185,7 +187,7 @@ const MyOrders = () => {
       alert('Please enter a valid email address');
       return;
     }
-    
+
     if (!validatePhone(editData.phone)) {
       alert('Please enter a valid phone number');
       return;
@@ -193,7 +195,7 @@ const MyOrders = () => {
 
     try {
       setUpdating(true);
-      
+
       const originalOrder = orders.find(order => order._id === orderId);
       const updatedOrderData = {
         ...editData,
@@ -201,23 +203,23 @@ const MyOrders = () => {
       };
 
       const response = await updateOrder(orderId, updatedOrderData);
-      
-      setOrders(prevOrders => 
-        prevOrders.map(order => 
-          order._id === orderId 
-            ? { 
-                ...order, 
-                ...updatedOrderData,
-                updatedAt: response.order ? response.order.updatedAt : new Date().toISOString()
-              }
+
+      setOrders(prevOrders =>
+        prevOrders.map(order =>
+          order._id === orderId
+            ? {
+              ...order,
+              ...updatedOrderData,
+              updatedAt: response.order ? response.order.updatedAt : new Date().toISOString()
+            }
             : order
         )
       );
-      
+
       setEditingOrder(null);
       setEditData({});
       alert('Order updated successfully!');
-      
+
     } catch (err) {
       console.error('Error updating order:', err);
       alert(err.message || 'Failed to update order. Please try again.');
@@ -237,29 +239,29 @@ const MyOrders = () => {
     const confirmed = window.confirm(
       'Are you sure you want to cancel this order? This action cannot be undone.'
     );
-    
+
     if (!confirmed) return;
 
     try {
       setUpdating(true);
-      
+
       const response = await cancelOrder(orderId);
-      
-      setOrders(prevOrders => 
-        prevOrders.map(order => 
-          order._id === orderId 
-            ? { 
-                ...order, 
-                orderStatus: response.order ? response.order.orderStatus : 'cancelled',
-                cancelledAt: response.order ? response.order.cancelledAt : new Date().toISOString(),
-                updatedAt: response.order ? response.order.updatedAt : new Date().toISOString()
-              }
+
+      setOrders(prevOrders =>
+        prevOrders.map(order =>
+          order._id === orderId
+            ? {
+              ...order,
+              orderStatus: response.order ? response.order.orderStatus : 'cancelled',
+              cancelledAt: response.order ? response.order.cancelledAt : new Date().toISOString(),
+              updatedAt: response.order ? response.order.updatedAt : new Date().toISOString()
+            }
             : order
         )
       );
-      
+
       alert('Order cancelled successfully!');
-      
+
     } catch (err) {
       console.error('Error cancelling order:', err);
       alert(err.message || 'Failed to cancel order. Please try again.');
@@ -290,8 +292,8 @@ const MyOrders = () => {
   // Loading state
   if (loading) {
     return (
-      <div style={{ 
-        padding: '40px', 
+      <div style={{
+        padding: '40px',
         textAlign: 'center',
         fontSize: '18px',
         color: '#666'
@@ -320,8 +322,8 @@ const MyOrders = () => {
   // Error state
   if (error) {
     return (
-      <div style={{ 
-        padding: '40px', 
+      <div style={{
+        padding: '40px',
         textAlign: 'center',
         maxWidth: '600px',
         margin: '0 auto'
@@ -356,8 +358,8 @@ const MyOrders = () => {
   // No orders state
   if (orders.length === 0) {
     return (
-      <div style={{ 
-        padding: '40px', 
+      <div style={{
+        padding: '40px',
         textAlign: 'center',
         maxWidth: '600px',
         margin: '0 auto'
@@ -384,8 +386,8 @@ const MyOrders = () => {
   }
 
   // Main render
- return (
-    <div style={{ 
+  return (
+    <div style={{
       padding: '12px',
       maxWidth: '1200px',
       margin: '0 auto',
@@ -455,16 +457,16 @@ const MyOrders = () => {
         `}
       </style>
 
-      <h2 style={{ 
-        color: '#333', 
+      <h2 style={{
+        color: '#333',
         marginBottom: '24px',
         textAlign: 'center',
         fontSize: 'clamp(20px, 4vw, 24px)'
       }}>
         My Orders ({orders.length})
       </h2>
-      
-      <div style={{ 
+
+      <div style={{
         display: 'flex',
         flexDirection: 'column',
         gap: '20px'
@@ -475,7 +477,7 @@ const MyOrders = () => {
           const currentImage = images[currentImageIndex];
           const isImageLoading = imageLoadingStates[`${order._id}-${currentImageIndex}`];
           const hasImageError = imageLoadErrors[`${order._id}-${currentImageIndex}`];
-          
+
           return (
             <div key={order._id} className="order-card" style={{
               border: '1px solid #ddd',
@@ -494,14 +496,14 @@ const MyOrders = () => {
                 paddingBottom: '15px'
               }}>
                 <div>
-                  <h3 className="order-title" style={{ 
+                  <h3 className="order-title" style={{
                     margin: '0 0 5px 0',
                     color: '#333',
                     fontSize: '18px'
                   }}>
                     Order #{order._id?.slice(-8) || 'N/A'}
                   </h3>
-                  <p style={{ 
+                  <p style={{
                     margin: '0',
                     color: '#666',
                     fontSize: '14px'
@@ -534,7 +536,7 @@ const MyOrders = () => {
                 gap: '20px',
                 alignItems: 'start'
               }}>
-                
+
                 {/* Product Image Section with Navigation */}
                 <div className="image-section" style={{ width: '200px' }}>
                   {images.length > 0 ? (
@@ -564,15 +566,15 @@ const MyOrders = () => {
                           }}></div>
                         </div>
                       )}
-                      
-                      <img 
-                        src={hasImageError 
+
+                      <img
+                        src={hasImageError
                           ? 'https://via.placeholder.com/200x200/f8f9fa/6c757d?text=Image+Not+Found'
                           : currentImage
-                        } 
+                        }
                         alt={order.product?.title || order.productTitle || 'Product'}
-                        style={{ 
-                          width: '100%', 
+                        style={{
+                          width: '100%',
                           height: 'auto',
                           aspectRatio: '1/1',
                           objectFit: 'cover',
@@ -585,11 +587,11 @@ const MyOrders = () => {
                         onLoad={() => handleImageLoad(order._id, currentImageIndex)}
                         onError={() => handleImageError(order._id, currentImageIndex)}
                       />
-                      
+
                       {/* Navigation arrows - only show if multiple images and images are loaded */}
                       {images.length > 1 && !isImageLoading && (
                         <>
-                          <button 
+                          <button
                             onClick={() => prevImage(order._id, images.length)}
                             style={{
                               position: 'absolute',
@@ -621,7 +623,7 @@ const MyOrders = () => {
                           >
                             ‹
                           </button>
-                          <button 
+                          <button
                             onClick={() => nextImage(order._id, images.length)}
                             style={{
                               position: 'absolute',
@@ -655,7 +657,7 @@ const MyOrders = () => {
                           </button>
                         </>
                       )}
-                      
+
                       {/* Image counter */}
                       {images.length > 1 && (
                         <div style={{
@@ -691,12 +693,12 @@ const MyOrders = () => {
                       📷 No Image Available
                     </div>
                   )}
-                  
+
                   {/* Image indicators with click functionality */}
                   {images.length > 1 && (
-                    <div style={{ 
-                      display: 'flex', 
-                      justifyContent: 'center', 
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'center',
                       gap: '6px',
                       marginTop: '8px'
                     }}>
@@ -736,23 +738,23 @@ const MyOrders = () => {
                     gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
                     gap: '20px'
                   }}>
-                    
+
                     {/* Product Details */}
                     <div>
-                      <h4 style={{ 
+                      <h4 style={{
                         margin: '0 0 12px 0',
                         color: '#007bff',
                         fontSize: '16px'
                       }}>
                         Product Details
                       </h4>
-                      
+
                       <div style={{ marginBottom: '8px' }}>
                         <strong className="product-title" style={{ color: '#333', fontSize: '15px' }}>
                           {order.product?.title || order.productTitle || 'Product Name Not Available'}
                         </strong>
                       </div>
-                      
+
                       {(order.product?.description || order.productDescription) && (
                         <p style={{
                           margin: '0 0 8px 0',
@@ -761,14 +763,14 @@ const MyOrders = () => {
                           lineHeight: '1.4',
                           wordBreak: 'break-word'
                         }}>
-                          {((order.product?.description || order.productDescription).length > 100 
+                          {((order.product?.description || order.productDescription).length > 100
                             ? `${(order.product?.description || order.productDescription).substring(0, 100)}...`
                             : (order.product?.description || order.productDescription)
                           )}
                         </p>
                       )}
-                      
-                      <div style={{ 
+
+                      <div style={{
                         fontSize: '18px',
                         fontWeight: 'bold',
                         color: '#28a745',
@@ -790,14 +792,14 @@ const MyOrders = () => {
 
                     {/* Order Details */}
                     <div>
-                      <h4 style={{ 
+                      <h4 style={{
                         margin: '0 0 12px 0',
                         color: '#007bff',
                         fontSize: '16px'
                       }}>
                         Order Details
                       </h4>
-                      
+
                       {editingOrder === order._id ? (
                         // Edit Mode
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -833,7 +835,7 @@ const MyOrders = () => {
                               }}
                             />
                           </div>
-                          
+
                           <div className="edit-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                             <input
                               type="tel"
@@ -866,7 +868,7 @@ const MyOrders = () => {
                               }}
                             />
                           </div>
-                          
+
                           <div className="edit-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                             <select
                               name="size"
@@ -904,8 +906,25 @@ const MyOrders = () => {
                                 <option key={color} value={color}>{color}</option>
                               ))}
                             </select>
+
                           </div>
-                          
+                          <select
+                            name="paymentMethod"
+                            value={editData.paymentMethod}
+                            onChange={handleEditChange}
+                            style={{
+                              padding: '8px',
+                              border: '1px solid #ddd',
+                              borderRadius: '4px',
+                              fontSize: '14px',
+                              width: '100%',
+                              boxSizing: 'border-box',
+                              marginBottom: '12px'
+                            }}
+                          >
+                            <option value="cod">Cash on Delivery</option>
+                            <option value="online">Online Payment</option>
+                          </select>
                           <textarea
                             name="address"
                             value={editData.address}
@@ -922,7 +941,7 @@ const MyOrders = () => {
                               boxSizing: 'border-box'
                             }}
                           />
-                          
+
                           <textarea
                             name="specialInstructions"
                             value={editData.specialInstructions}
@@ -939,7 +958,7 @@ const MyOrders = () => {
                               boxSizing: 'border-box'
                             }}
                           />
-                          
+
                           <div style={{ display: 'flex', gap: '10px', marginTop: '10px', flexWrap: 'wrap' }}>
                             <button
                               onClick={() => handleSaveEdit(order._id)}
@@ -977,6 +996,42 @@ const MyOrders = () => {
                         </div>
                       ) : (
                         // View Mode
+                        // <div style={{ fontSize: '14px', lineHeight: '1.6' }}>
+                        //   <div style={{ marginBottom: '8px', wordBreak: 'break-word' }}>
+                        //     <strong>Customer:</strong> {order.customerName || 'N/A'}
+                        //   </div>
+                        //   <div style={{ marginBottom: '8px', wordBreak: 'break-all' }}>
+                        //     <strong>Email:</strong> {order.email || 'N/A'}
+                        //   </div>
+                        //   <div style={{ marginBottom: '8px', wordBreak: 'break-word' }}>
+                        //     <strong>Phone:</strong> {order.phone || 'N/A'}
+                        //   </div>
+                        //   <div style={{ marginBottom: '8px' }}>
+                        //     <strong>Quantity:</strong> {order.quantity || 1}
+                        //   </div>
+                        //   <div style={{ marginBottom: '8px' }}>
+                        //     <strong>Size:</strong> {order.size || 'N/A'}
+                        //   </div>
+                        //   <div style={{ marginBottom: '8px' }}>
+                        //     <strong>Color:</strong> {order.color || 'N/A'}
+                        //   </div>
+
+                        //   <div style={{ marginBottom: '8px' }}>
+                        //     <strong>Total Amount:</strong> <span style={{ color: '#28a745', fontWeight: 'bold' }}>
+                        //       {order.totalAmount || 'N/A'}
+                        //     </span>
+                        //   </div>
+                        //   {order.address && (
+                        //     <div style={{ marginBottom: '8px', wordBreak: 'break-word' }}>
+                        //       <strong>Address:</strong> {order.address}
+                        //     </div>
+                        //   )}
+                        //   {order.specialInstructions && (
+                        //     <div style={{ marginBottom: '8px', wordBreak: 'break-word' }}>
+                        //       <strong>Special Instructions:</strong> {order.specialInstructions}
+                        //     </div>
+                        //   )}
+                        // </div>
                         <div style={{ fontSize: '14px', lineHeight: '1.6' }}>
                           <div style={{ marginBottom: '8px', wordBreak: 'break-word' }}>
                             <strong>Customer:</strong> {order.customerName || 'N/A'}
@@ -996,6 +1051,83 @@ const MyOrders = () => {
                           <div style={{ marginBottom: '8px' }}>
                             <strong>Color:</strong> {order.color || 'N/A'}
                           </div>
+
+                          {/* Payment Method */}
+                          <div style={{ marginBottom: '8px' }}>
+                            <strong>Payment Method:</strong>
+                            <span style={{
+                              textTransform: 'capitalize',
+                              color: order.paymentMethod === 'online' ? '#007bff' : '#28a745',
+                              fontWeight: '500',
+                              marginLeft: '4px'
+                            }}>
+                              {order.paymentMethod === 'online' ? 'Online Payment' : 'Cash on Delivery'}
+                            </span>
+                          </div>
+
+                          {/* Payment Slip Section - Only show if payment method is online */}
+                          {order.paymentMethod === 'online' && (
+                            <div style={{ marginBottom: '8px' }}>
+                              <strong>Payment Slip:</strong>
+                              {order.paymentSlip ? (
+                                <div style={{ marginTop: '8px' }}>
+                                  <a
+                                    href={order.paymentSlip}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{
+                                      color: '#007bff',
+                                      textDecoration: 'none',
+                                      fontSize: '14px',
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      gap: '4px',
+                                      padding: '4px 8px',
+                                      backgroundColor: '#f8f9fa',
+                                      borderRadius: '4px',
+                                      border: '1px solid #dee2e6',
+                                      transition: 'all 0.2s ease'
+                                    }}
+                                    onMouseEnter={(e) => {
+                                      e.target.style.backgroundColor = '#e9ecef';
+                                      e.target.style.textDecoration = 'underline';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      e.target.style.backgroundColor = '#f8f9fa';
+                                      e.target.style.textDecoration = 'none';
+                                    }}
+                                  >
+                                    📄 View Payment Slip
+                                  </a>
+
+                                  {/* Payment slip preview */}
+                                  <div style={{ marginTop: '8px' }}>
+                                    <img
+                                      src={order.paymentSlip}
+                                      alt="Payment Slip"
+                                      style={{
+                                        maxWidth: '150px',
+                                        maxHeight: '100px',
+                                        objectFit: 'cover',
+                                        borderRadius: '4px',
+                                        border: '1px solid #dee2e6',
+                                        cursor: 'pointer'
+                                      }}
+                                      onClick={() => window.open(order.paymentSlip, '_blank')}
+                                      onError={(e) => {
+                                        e.target.style.display = 'none';
+                                      }}
+                                    />
+                                  </div>
+                                </div>
+                              ) : (
+                                <span style={{ color: '#dc3545', marginLeft: '4px', fontSize: '14px' }}>
+                                  Payment slip not uploaded
+                                </span>
+                              )}
+                            </div>
+                          )}
+
                           <div style={{ marginBottom: '8px' }}>
                             <strong>Total Amount:</strong> <span style={{ color: '#28a745', fontWeight: 'bold' }}>
                               {order.totalAmount || 'N/A'}
@@ -1065,6 +1197,6 @@ const MyOrders = () => {
       </div>
     </div>
   );
-  };
+};
 
 export default MyOrders;

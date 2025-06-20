@@ -96,7 +96,7 @@ const orderSchema = new mongoose.Schema({
     ref: 'Product',
     required: true
   },
-  
+
   // Customer Information
   customerName: {
     type: String,
@@ -114,12 +114,12 @@ const orderSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  
+
   // Product Details
   productImage: {
-  type: [String],
-  required: true  // Optional — only if every order must have an image
-},
+    type: [String],
+    required: true
+  },
   productTitle: {
     type: String,
     required: true
@@ -128,7 +128,7 @@ const orderSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
-  
+
   // Order Specifications
   size: {
     type: String,
@@ -147,7 +147,21 @@ const orderSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
-  
+
+  // Payment Information
+  paymentMethod: {
+    type: String,
+    enum: ['cash', 'cod', 'online'], // Added 'cod' to the enum
+    required: true,
+    default: 'cod' // Changed default to 'cod'
+  },
+  paymentSlip: {
+    type: String, // URL of the uploaded payment slip
+    required: function() {
+      return this.paymentMethod === 'online';
+    }
+  },
+
   // Order Details
   totalAmount: {
     type: Number,
@@ -158,7 +172,7 @@ const orderSchema = new mongoose.Schema({
     enum: ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'],
     default: 'pending'
   },
-  
+
   // Timestamps
   orderDate: {
     type: Date,
