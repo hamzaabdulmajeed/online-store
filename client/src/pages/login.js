@@ -25,7 +25,7 @@ const Login = () => {
   const handleLogin = async (loginData) => {
     setIsLoading(true);
     try {
-      const response = await fetch('https://stylishmenshoes.vercel.app/api/auth/login', {
+      const response = await fetch('https://online-store-backend-fdym.vercel.app/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

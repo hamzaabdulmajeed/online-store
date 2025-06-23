@@ -86,7 +86,7 @@ const Signup = () => {
     setError('');
 
     try {
-      const res = await axios.post('https://stylishmenshoes.vercel.app/api/auth/signup', { 
+      const res = await axios.post('https://online-store-backend-fdym.vercel.app/api/auth/signup', { 
         email, 
         password, 
         name 
