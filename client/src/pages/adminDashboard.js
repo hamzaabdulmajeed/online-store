@@ -44,7 +44,7 @@ const AdminDashboard = () => {
   const fetchOrders = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('http://localhost:3001/api/orders', {
+      const response = await axios.get('https://stylishmenshoes.vercel.app/api/orders', {
         headers: { Authorization: `Bearer ${getToken()}` },
         params: { status: statusFilter }
       });
@@ -60,7 +60,7 @@ const AdminDashboard = () => {
   // Fetch order statistics
   const fetchOrderStats = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/api/orders/stats/summary', {
+      const response = await axios.get('https://stylishmenshoes.vercel.app/api/orders/stats/summary', {
         headers: { Authorization: `Bearer ${getToken()}` }
       });
       setOrderStats(response.data);
@@ -73,7 +73,7 @@ const AdminDashboard = () => {
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
       await axios.put(
-        `http://localhost:3001/api/orders/${orderId}/status`,
+        `https://stylishmenshoes.vercel.app/api/orders/${orderId}/status`,
         { status: newStatus },
         { headers: { Authorization: `Bearer ${getToken()}` } }
       );
@@ -191,7 +191,7 @@ const removeSize = (sizeToRemove) => {
     };
 
     await axios.post(
-      'http://localhost:3001/api/products/addProduct',
+      'https://stylishmenshoes.vercel.app/api/products/addProduct',
       product,
       { headers: { Authorization: `Bearer ${getToken()}` } }
     );

@@ -41,7 +41,7 @@ export const storage = getStorage(app);
 // Fetch products from your backend
 async function getProducts() {
   try {
-    const response = await fetch('http://localhost:3001/api/products', {
+    const response = await fetch('https://stylishmenshoes.vercel.app/products', {
       method: 'GET',
       headers: {
         "Content-Type": "application/json"
@@ -309,7 +309,7 @@ export const placeOrder = async (orderData, productImages = [], paymentSlipFile 
       paymentSlip: paymentSlipUrl
     };
 
-    const response = await fetch('http://localhost:3001/api/orders', {
+    const response = await fetch('https://stylishmenshoes.vercel.app/api/orders', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -411,7 +411,7 @@ export const getMyOrders = async (userId) => {
   }
 
   try {
-    const response = await fetch(`http://localhost:3001/api/orders/user/${userId}`, {
+    const response = await fetch(`https://stylishmenshoes.vercel.app/api/orders/user/${userId}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -457,7 +457,7 @@ export const updateOrder = async (orderId, updatedData) => {
   }
 
   try {
-    const response = await fetch(`http://localhost:3001/api/orders/${orderId}`, {
+    const response = await fetch(`https://stylishmenshoes.vercel.app/api/orders/${orderId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -509,7 +509,7 @@ export const cancelOrder = async (orderId) => {
   }
 
   try {
-    const response = await fetch(`http://localhost:3001/api/orders/${orderId}/cancel`, {
+    const response = await fetch(`https://stylishmenshoes.vercel.app/api/orders/${orderId}/cancel`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
