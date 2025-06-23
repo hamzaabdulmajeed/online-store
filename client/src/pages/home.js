@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { getProducts, placeOrder } from "../config/api.js";
 import { useNavigate } from 'react-router-dom';
-
-
+import MyOrders from './myOrders.js';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 // const OrderForm = ({ product, onClose, onSubmit }) => {
 //   const [orderData, setOrderData] = useState({
 //     customerName: '',
@@ -872,16 +873,17 @@ const OrderForm = ({ product, onClose, onSubmit }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [formErrors, setFormErrors] = useState({}); // Add form errors state
 
-  const shoeSizes = ['40', '41', '42', '43', '44'];
-  const colors = ['Black', 'White', 'Brown', 'Red', 'Blue', 'Gray', 'Navy'];
+  // Use colors and sizes from the product data instead of hardcoded arrays
+  const availableColors = product.colors || [];
+  const availableSizes = product.sizes || [];
   const deliveryCharges = 200;
 
   // Bank details for online payment
   const bankDetails = {
-    bankName: "HBL Bank",
-    accountTitle: "Your Business Name",
-    accountNumber: "1234567890123456",
-    iban: "PK36HABB0000001234567890"
+    bankName: "jazz cash",
+    accountTitle: "Muhammad hamza memon",
+    accountNumber: "03030291107",
+    iban: "PK07JCMA3105923030291107"
   };
 
   // Check if delivery address is in Karachi
@@ -951,14 +953,14 @@ const OrderForm = ({ product, onClose, onSubmit }) => {
     if (file) {
       // Validate file size (5MB limit)
       if (file.size > 5 * 1024 * 1024) {
-        alert('File size should be less than 5MB');
+        toast.error('File size should be less than 5MB');
         e.target.value = ''; // Reset file input
         return;
       }
       
       // Validate file type
       if (!file.type.startsWith('image/')) {
-        alert('Please upload only image files (JPG, PNG, GIF, etc.)');
+        toast.error('Please upload only image files (JPG, PNG, GIF, etc.)');
         e.target.value = ''; // Reset file input
         return;
       }
@@ -966,7 +968,7 @@ const OrderForm = ({ product, onClose, onSubmit }) => {
       // Validate file format more strictly
       const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
       if (!allowedTypes.includes(file.type.toLowerCase())) {
-        alert('Please upload only JPG, PNG, GIF, or WebP image files');
+        toast.error('Please upload only JPG, PNG, GIF, or WebP image files');
         e.target.value = ''; // Reset file input
         return;
       }
@@ -987,7 +989,7 @@ const OrderForm = ({ product, onClose, onSubmit }) => {
         setSlipPreview(e.target.result);
       };
       reader.onerror = () => {
-        alert('Error reading file. Please try again.');
+        toast.error('Error reading file. Please try again.');
         setPaymentSlip(null);
         setSlipPreview(null);
       };
@@ -1045,7 +1047,7 @@ const OrderForm = ({ product, onClose, onSubmit }) => {
       
       // Show alert for the first error found
       const firstError = Object.values(errors)[0];
-      alert(firstError);
+      toast.error(firstError);
       return;
     }
 
@@ -1054,12 +1056,12 @@ const OrderForm = ({ product, onClose, onSubmit }) => {
     const userId = localStorage.getItem('userId');
     
     if (!isAuthenticated) {
-      alert('Please login to place an order.');
+      toast.error('Please login to place an order.');
       return;
     }
 
     if (!userId) {
-      alert('User session expired. Please login again.');
+      toast.error('User session expired. Please login again.');
       return;
     }
 
@@ -1077,19 +1079,22 @@ const OrderForm = ({ product, onClose, onSubmit }) => {
         productImage: product.image,
         productTitle: product.title,
         productPrice: product.price,
+        productColor: product.colors,
+        productSize: product.sizes,
         subtotal: subtotal,
         deliveryCharges: deliveryCharges,
         totalAmount: totalAmount,
         isKarachiDelivery: inKarachi,
         orderDate: new Date().toISOString()
       };
+      console.log("Pc", order.productColor)
       
       // Call onSubmit with order data and payment slip file
       await onSubmit(order, paymentSlip);
       
     } catch (error) {
       console.error('Order submission error:', error);
-      alert('Failed to place order. Please try again.');
+      toast.error('Failed to place order. Please try again.');
     } finally {
       setIsUploading(false);
       setUploadProgress(0);
@@ -1254,10 +1259,15 @@ const OrderForm = ({ product, onClose, onSubmit }) => {
                   }}
                 >
                   <option value="">Select Size</option>
-                  {shoeSizes.map(size => (
+                  {availableSizes.map(size => (
                     <option key={size} value={size}>{size}</option>
                   ))}
                 </select>
+                {availableSizes.length === 0 && (
+                  <small style={{ color: '#666', fontSize: '12px', display: 'block', marginTop: '2px' }}>
+                    No sizes available for this product
+                  </small>
+                )}
               </div>
               <div>
                 <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
@@ -1279,10 +1289,15 @@ const OrderForm = ({ product, onClose, onSubmit }) => {
                   }}
                 >
                   <option value="">Select Color</option>
-                  {colors.map(color => (
+                  {availableColors.map(color => (
                     <option key={color} value={color}>{color}</option>
                   ))}
                 </select>
+                {availableColors.length === 0 && (
+                  <small style={{ color: '#666', fontSize: '12px', display: 'block', marginTop: '2px' }}>
+                    No colors available for this product
+                  </small>
+                )}
               </div>
               <div>
                 <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
@@ -2213,152 +2228,93 @@ const ProductCard = ({ product }) => {
     setImageLoading(false);
   };
 
-  // Updated handleOrderSubmit function to properly handle payment slip
-//   const handleOrderSubmit = async (orderData, paymentSlipFile = null) => {
-//     try {
-//       const token = sessionStorage.getItem('authToken') || localStorage.getItem('authToken');
+  const handleOrderSubmit = async (orderData, paymentSlipFile = null) => {
+    try {
+      const token = sessionStorage.getItem('authToken') || localStorage.getItem('authToken');
       
-//       if (!token) {
-//         alert('Authentication token missing. Please login again.');
-//         navigate('/login');
-//         return;
-//       }
-      
-//       // Prepare order data with complete product information
-//       const orderWithProduct = {
-//         ...orderData,
-//         product: {
-//           _id: product._id,
-//           title: product.title,
-//           description: product.description,
-//           price: product.price,
-//           image: product.image
-//         },
-//         productImage: product.image,
-//         productId: product._id,
-//         productTitle: product.title,
-//         productPrice: product.price
-//       };
-      
-//       // Log for debugging
-//       console.log('Order data:', orderWithProduct);
-//       console.log('Payment method:', orderWithProduct.paymentMethod);
-//       console.log('Payment slip file:', paymentSlipFile);
-      
-//       // Call placeOrder with proper parameters
-//       const result = await placeOrder(
-//         orderWithProduct, 
-//         [], // No product images to upload (they're already stored)
-//         paymentSlipFile, // Payment slip file
-//         token
-//       );
-      
-//       // Success message with order details
-//       const successMessage = `Order placed successfully!
-// Order ID: ${result.orderId || result._id}
-// Total: Rs. ${orderData.totalAmount}
-// Payment Method: ${orderData.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment'}
-// ${orderData.paymentMethod === 'online' ? 'Payment slip uploaded successfully.' : ''}
-// We'll contact you soon!`;
-      
-//       alert(successMessage);
-//       setShowOrderForm(false);
-      
-//     } catch (error) {
-//       console.error('Order failed:', error);
-      
-//       // Handle different types of errors
-//       if (error.message.includes('Authentication') || error.message.includes('token')) {
-//         alert('Your session has expired. Please login again.');
-//         navigate('/login');
-//       } else if (error.message.includes('Payment slip')) {
-//         alert('Payment slip upload failed. Please try again with a valid image file.');
-//       } else if (error.message.includes('Network')) {
-//         alert('Network error. Please check your connection and try again.');
-//       } else {
-//         alert(`Failed to place order: ${error.message}`);
-//       }
-//     }
-//   };
+      if (!token) {
+        // Using toast.error instead of alert for better UX
+        toast.error('Authentication token missing. Please login again.');
+        navigate('/login');
+        return;
+      }
 
-const handleOrderSubmit = async (orderData, paymentSlipFile = null) => {
-  try {
-    const token = sessionStorage.getItem('authToken') || localStorage.getItem('authToken');
-    
-    if (!token) {
-      alert('Authentication token missing. Please login again.');
-      navigate('/login');
-      return;
+      // Frontend validation for online payment
+      if (orderData.paymentMethod === 'online' && !paymentSlipFile) {
+        toast.error('Payment slip is required for online payments. Please upload your payment slip.');
+        return;
+      }
+      
+      // Normalize payment method: convert 'cod' to 'cash' if needed
+      const normalizedPaymentMethod = orderData.paymentMethod === 'cod' ? 'cash' : orderData.paymentMethod;
+      
+      // Prepare order data with complete product information
+      const orderWithProduct = {
+        ...orderData,
+        paymentMethod: normalizedPaymentMethod,
+        product: {
+          _id: product._id,
+          title: product.title,
+          description: product.description,
+          price: product.price,
+          color: product.colors,
+          size: product.sizes,
+          image: product.image
+        },
+        productImage: product.image,
+        productId: product._id,
+        productTitle: product.title,
+        productPrice: product.price,
+        productColor: product.colors,
+        productSize: product.sizes
+      };
+      
+      // Log for debugging
+      console.log('Order data:', orderWithProduct);
+      console.log('Payment method:', orderWithProduct.paymentMethod);
+      console.log('Payment slip file:', paymentSlipFile);
+      
+      // Call placeOrder with proper parameters
+      const result = await placeOrder(
+        orderWithProduct, 
+        [], // No product images to upload (they're already stored)
+        paymentSlipFile, // Payment slip file
+        token
+      );
+      
+      // Success message with order details
+      const successMessage = `Order placed successfully!\nOrder ID: ${result.orderId || result._id}\nTotal: Rs. ${orderData.totalAmount}\nPayment Method: ${orderData.paymentMethod === 'cod' || orderData.paymentMethod === 'cash' ? 'Cash on Delivery' : 'Online Payment'}\n${normalizedPaymentMethod === 'online' ? 'Payment slip uploaded successfully. once payment varified your order status will be change in my order page within 12 hour' : ''}\nWe'll contact you soon!`;
+      
+      // Using toast.success with proper configuration
+      toast.success(successMessage, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+      
+      setShowOrderForm(false);
+      
+    } catch (error) {
+      console.error('Order failed:', error);
+      
+      // Handle different types of errors with specific messages using toast
+      if (error.message.includes('Authentication') || error.message.includes('token')) {
+        toast.error('Your session has expired. Please login again.');
+        navigate('/login');
+      } else if (error.message.includes('Payment slip')) {
+        toast.error('Payment slip is required for online payments. Please upload your payment slip and try again.');
+      } else if (error.message.includes('Network')) {
+        toast.error('Network error. Please check your connection and try again.');
+      } else if (error.message.includes('Invalid order data') || error.message.includes('ValidationError')) {
+        toast.error(`Invalid order information: ${error.message}`);
+      } else {
+        toast.error(`Failed to place order: ${error.message}`);
+      }
     }
-
-    // Frontend validation for online payment
-    if (orderData.paymentMethod === 'online' && !paymentSlipFile) {
-      alert('Payment slip is required for online payments. Please upload your payment slip.');
-      return; // Stop execution here
-    }
-    
-    // Normalize payment method: convert 'cod' to 'cash' if needed
-    const normalizedPaymentMethod = orderData.paymentMethod === 'cod' ? 'cash' : orderData.paymentMethod;
-    
-    // Prepare order data with complete product information
-    const orderWithProduct = {
-      ...orderData,
-      paymentMethod: normalizedPaymentMethod,
-      product: {
-        _id: product._id,
-        title: product.title,
-        description: product.description,
-        price: product.price,
-        image: product.image
-      },
-      productImage: product.image,
-      productId: product._id,
-      productTitle: product.title,
-      productPrice: product.price
-    };
-    
-    // Log for debugging
-    console.log('Order data:', orderWithProduct);
-    console.log('Payment method:', orderWithProduct.paymentMethod);
-    console.log('Payment slip file:', paymentSlipFile);
-    
-    // Call placeOrder with proper parameters
-    const result = await placeOrder(
-      orderWithProduct, 
-      [], // No product images to upload (they're already stored)
-      paymentSlipFile, // Payment slip file
-      token
-    );
-    
-    // Success message with order details
-    const successMessage = `Order placed successfully!
-Order ID: ${result.orderId || result._id}
-Total: Rs. ${orderData.totalAmount}
-Payment Method: ${orderData.paymentMethod === 'cod' || orderData.paymentMethod === 'cash' ? 'Cash on Delivery' : 'Online Payment'}
-${normalizedPaymentMethod === 'online' ? 'Payment slip uploaded successfully.' : ''}
-We'll contact you soon!`;
-    
-    alert(successMessage);
-    setShowOrderForm(false);
-    
-  } catch (error) {
-    console.error('Order failed:', error);
-    
-    // Handle different types of errors with specific messages
-    if (error.message.includes('Authentication') || error.message.includes('token')) {
-      alert('Your session has expired. Please login again.');
-      navigate('/login');
-    } else if (error.message.includes('Payment slip')) {
-      alert('Payment slip is required for online payments. Please upload your payment slip and try again.');
-    } else if (error.message.includes('Network')) {
-      alert('Network error. Please check your connection and try again.');
-    } else if (error.message.includes('Invalid order data') || error.message.includes('ValidationError')) {
-      alert(`Invalid order information: ${error.message}`);
-    } else {
-      alert(`Failed to place order: ${error.message}`);
-    }
-  }
-};
+  };
 
   const handleOrderClick = () => {
     const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
@@ -2755,6 +2711,8 @@ We'll contact you soon!`;
           onSubmit={handleOrderSubmit}
         />
       )}
+      
+      {/* ToastContainer with proper configuration */}
     </>
   );
 };
@@ -2834,6 +2792,7 @@ const Home = () => {
       maxWidth: '100%',
       overflow: 'hidden' // Prevent horizontal scroll
     }}>
+      
       <h2 style={{ 
         textAlign: 'center', 
         marginBottom: '30px', 

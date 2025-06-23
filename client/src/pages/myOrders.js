@@ -2,7 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import { getMyOrders, updateOrder, cancelOrder } from '../config/api';
 import { useNavigate } from 'react-router-dom';
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const MyOrders = () => {
   const [orders, setOrders] = useState([]);
@@ -16,8 +17,7 @@ const MyOrders = () => {
   const [imageLoadErrors, setImageLoadErrors] = useState({});
   const navigate = useNavigate();
 
-  const shoeSizes = ['40', '41', '42', '43', '44'];
-  const colors = ['Black', 'White', 'Brown', 'Red', 'Blue', 'Gray', 'Navy'];
+  // Removed hardcoded shoeSizes and colors arrays
 
   useEffect(() => {
     const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
@@ -62,6 +62,8 @@ const MyOrders = () => {
 
     fetchOrders();
   }, [navigate]);
+
+  const deliveryCharges = 200;
 
   // Handle image loading state
   const handleImageLoad = (orderId, imageIndex) => {
@@ -155,21 +157,102 @@ const MyOrders = () => {
     return phoneRegex.test(phone.replace(/[\s\-\(\)]/g, ''));
   };
 
+  //   const getAvailableOptions = (order) => {
+  //   // Get available colors from the product data from API
+  //   let availableColors = [];
+
+  //   // Check multiple possible locations for colors
+  //   if (order.product?.colors && Array.isArray(order.product.colors)) {
+  //     availableColors = order.product.colors;
+  //   } else if (order.product?.color && Array.isArray(order.product.color)) {
+  //     availableColors = order.product.color;
+  //   } else if (order.productColor && Array.isArray(order.productColor)) {
+  //     availableColors = order.productColor;
+  //   } else if (order.colors && Array.isArray(order.colors)) {
+  //     availableColors = order.colors;
+  //   }
+
+  //   // Get available sizes from the product data from API
+  //   let availableSizes = [];
+
+  //   // Check multiple possible locations for sizes
+  //   if (order.product?.sizes && Array.isArray(order.product.sizes)) {
+  //     availableSizes = order.product.sizes;
+  //   } else if (order.product?.size && Array.isArray(order.product.size)) {
+  //     availableSizes = order.product.size;
+  //   } else if (order.productSize && Array.isArray(order.productSize)) {
+  //     availableSizes = order.productSize;
+  //   } else if (order.sizes && Array.isArray(order.sizes)) {
+  //     availableSizes = order.sizes;
+  //   }
+
+  //   console.log('Order data for debugging:', order);
+  //   console.log('Available colors:', availableColors);
+  //   console.log('Available sizes:', availableSizes);
+
+  //   return { availableColors, availableSizes };
+  // };
+
+
   // Handle starting edit mode
+
+  const getAvailableOptions = (order) => {
+    // Get available colors from the populated product data
+    let availableColors = [];
+
+    // First check if productId is populated and has colors
+    if (order.productId?.colors && Array.isArray(order.productId.colors)) {
+      availableColors = order.productId.colors;
+    }
+    // Fallback to other possible locations
+    else if (order.product?.colors && Array.isArray(order.product.colors)) {
+      availableColors = order.product.colors;
+    } else if (order.product?.color && Array.isArray(order.product.color)) {
+      availableColors = order.product.color;
+    } else if (order.productColor && Array.isArray(order.productColor)) {
+      availableColors = order.productColor;
+    } else if (order.colors && Array.isArray(order.colors)) {
+      availableColors = order.colors;
+    }
+
+    // Get available sizes from the populated product data
+    let availableSizes = [];
+
+    // First check if productId is populated and has sizes
+    if (order.productId?.sizes && Array.isArray(order.productId.sizes)) {
+      availableSizes = order.productId.sizes;
+    }
+    // Fallback to other possible locations
+    else if (order.product?.sizes && Array.isArray(order.product.sizes)) {
+      availableSizes = order.product.sizes;
+    } else if (order.product?.size && Array.isArray(order.product.size)) {
+      availableSizes = order.product.size;
+    } else if (order.productSize && Array.isArray(order.productSize)) {
+      availableSizes = order.productSize;
+    } else if (order.sizes && Array.isArray(order.sizes)) {
+      availableSizes = order.sizes;
+    }
+
+    console.log('Order data for debugging:', order);
+    console.log('Available colors:', availableColors);
+    console.log('Available sizes:', availableSizes);
+
+    return { availableColors, availableSizes };
+  };
+
   const handleEditOrder = (order) => {
-  setEditingOrder(order._id);
-  setEditData({
-    customerName: order.customerName || '',
-    email: order.email || '',
-    phone: order.phone || '',
-    address: order.address || '',
-    size: order.size || '',
-    color: order.color || '',
-    quantity: order.quantity || 1,
-    paymentMethod: order.paymentMethod || 'cod', // Add this line
-    specialInstructions: order.specialInstructions || ''
-  });
-};
+    setEditingOrder(order._id);
+    setEditData({
+      customerName: order.customerName || '',
+      email: order.email || '',
+      phone: order.phone || '',
+      address: order.address || '',
+      size: order.size || '',
+      color: order.color || '',
+      quantity: order.quantity || 1,
+      specialInstructions: order.specialInstructions || ''
+    });
+  };
 
 
   // Handle input changes in edit mode
@@ -184,12 +267,12 @@ const MyOrders = () => {
   // Save edited order
   const handleSaveEdit = async (orderId) => {
     if (!validateEmail(editData.email)) {
-      alert('Please enter a valid email address');
+      toast.error('Please enter a valid email address');
       return;
     }
 
     if (!validatePhone(editData.phone)) {
-      alert('Please enter a valid phone number');
+      toast.error('Please enter a valid phone number');
       return;
     }
 
@@ -197,9 +280,14 @@ const MyOrders = () => {
       setUpdating(true);
 
       const originalOrder = orders.find(order => order._id === orderId);
+      const subtotal = originalOrder.productPrice * editData.quantity;
+      const totalAmount = subtotal + deliveryCharges;
+
       const updatedOrderData = {
         ...editData,
-        totalAmount: originalOrder.productPrice * editData.quantity
+        subtotal: subtotal,
+        deliveryCharges: deliveryCharges,
+        totalAmount: totalAmount
       };
 
       const response = await updateOrder(orderId, updatedOrderData);
@@ -218,11 +306,11 @@ const MyOrders = () => {
 
       setEditingOrder(null);
       setEditData({});
-      alert('Order updated successfully!');
+      toast.success('Order updated successfully!');
 
     } catch (err) {
       console.error('Error updating order:', err);
-      alert(err.message || 'Failed to update order. Please try again.');
+      toast.error(err.message || 'Failed to update order. Please try again.');
     } finally {
       setUpdating(false);
     }
@@ -235,41 +323,96 @@ const MyOrders = () => {
   };
 
   // Cancel order
+  // const handleCancelOrder = async (orderId) => {
+  //   const confirmed = window.confirm(
+  //     'Are you sure you want to cancel this order? This action cannot be undone.'
+  //   );
+
+  //   if (!confirmed) return;
+
+  //   try {
+  //     setUpdating(true);
+
+  //     const response = await cancelOrder(orderId);
+
+  //     setOrders(prevOrders =>
+  //       prevOrders.map(order =>
+  //         order._id === orderId
+  //           ? {
+  //             ...order,
+  //             orderStatus: response.order ? response.order.orderStatus : 'cancelled',
+  //             cancelledAt: response.order ? response.order.cancelledAt : new Date().toISOString(),
+  //             updatedAt: response.order ? response.order.updatedAt : new Date().toISOString()
+  //           }
+  //           : order
+  //       )
+  //     );
+
+  //     toast.success('Order cancelled successfully!');
+
+  //   } catch (err) {
+  //     console.error('Error cancelling order:', err);
+  //     toast.error(err.message || 'Failed to cancel order. Please try again.');
+  //   } finally {
+  //     setUpdating(false);
+  //   }
+  // };
   const handleCancelOrder = async (orderId) => {
-    const confirmed = window.confirm(
-      'Are you sure you want to cancel this order? This action cannot be undone.'
-    );
+    toast.warn(" are you sure you want to cancell order! yes", {
+      position: "top-center",
+      autoClose: 8000,
+      closeOnClick: false,
+      pauseOnHover: true,
+      draggable: false,
+      toastId: `cancel-confirm-${orderId}`,
+      style: {
+        cursor: 'pointer', // This is how you set cursor style
+        color: "blue"
+      },
+      onClick: async () => {
+        toast.dismiss(`cancel-confirm-${orderId}`);
 
-    if (!confirmed) return;
+        // Show loading toast
+        const loadingToastId = toast.loading("Cancelling order...");
 
-    try {
-      setUpdating(true);
+        try {
+          setUpdating(true);
+          const response = await cancelOrder(orderId);
 
-      const response = await cancelOrder(orderId);
+          setOrders(prevOrders =>
+            prevOrders.map(order =>
+              order._id === orderId
+                ? {
+                  ...order,
+                  orderStatus: response.order ? response.order.orderStatus : 'cancelled',
+                  cancelledAt: response.order ? response.order.cancelledAt : new Date().toISOString(),
+                  updatedAt: response.order ? response.order.updatedAt : new Date().toISOString()
+                }
+                : order
+            )
+          );
 
-      setOrders(prevOrders =>
-        prevOrders.map(order =>
-          order._id === orderId
-            ? {
-              ...order,
-              orderStatus: response.order ? response.order.orderStatus : 'cancelled',
-              cancelledAt: response.order ? response.order.cancelledAt : new Date().toISOString(),
-              updatedAt: response.order ? response.order.updatedAt : new Date().toISOString()
-            }
-            : order
-        )
-      );
+          toast.update(loadingToastId, {
+            render: "Order cancelled successfully!",
+            type: "success",
+            isLoading: false,
+            autoClose: 3000
+          });
 
-      alert('Order cancelled successfully!');
-
-    } catch (err) {
-      console.error('Error cancelling order:', err);
-      alert(err.message || 'Failed to cancel order. Please try again.');
-    } finally {
-      setUpdating(false);
-    }
+        } catch (err) {
+          console.error('Error cancelling order:', err);
+          toast.update(loadingToastId, {
+            render: err.message || 'Failed to cancel order. Please try again.',
+            type: "error",
+            isLoading: false,
+            autoClose: 5000
+          });
+        } finally {
+          setUpdating(false);
+        }
+      }
+    });
   };
-
   // Check if order can be edited/cancelled
   const canModifyOrder = (order) => {
     const nonModifiableStatuses = ['shipped', 'delivered', 'cancelled'];
@@ -478,6 +621,9 @@ const MyOrders = () => {
           const isImageLoading = imageLoadingStates[`${order._id}-${currentImageIndex}`];
           const hasImageError = imageLoadErrors[`${order._id}-${currentImageIndex}`];
 
+          // Get available options for this specific order
+          const { availableColors, availableSizes } = getAvailableOptions(order);
+
           return (
             <div key={order._id} className="order-card" style={{
               border: '1px solid #ddd',
@@ -508,10 +654,14 @@ const MyOrders = () => {
                     color: '#666',
                     fontSize: '14px'
                   }}>
-                    Placed on: {new Date(order.createdAt).toLocaleDateString('en-US', {
+                    Placed on: {new Date(order.orderDate).toLocaleString('en-PK', {
                       year: 'numeric',
                       month: 'long',
-                      day: 'numeric'
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      second: '2-digit',
+                      hour12: true // for AM/PM format
                     })}
                   </p>
                 </div>
@@ -884,7 +1034,7 @@ const MyOrders = () => {
                               }}
                             >
                               <option value="">Select Size</option>
-                              {shoeSizes.map(size => (
+                              {(getAvailableOptions(order).availableSizes || []).map(size => (
                                 <option key={size} value={size}>{size}</option>
                               ))}
                             </select>
@@ -902,13 +1052,12 @@ const MyOrders = () => {
                               }}
                             >
                               <option value="">Select Color</option>
-                              {colors.map(color => (
+                              {(getAvailableOptions(order).availableColors || []).map(color => (
                                 <option key={color} value={color}>{color}</option>
                               ))}
                             </select>
-
                           </div>
-                          <select
+                          {/* <select
                             name="paymentMethod"
                             value={editData.paymentMethod}
                             onChange={handleEditChange}
@@ -924,7 +1073,29 @@ const MyOrders = () => {
                           >
                             <option value="cod">Cash on Delivery</option>
                             <option value="online">Online Payment</option>
-                          </select>
+                          </select> */}
+                          <div style={{
+                            backgroundColor: '#f8f9fa',
+                            padding: '12px',
+                            borderRadius: '4px',
+                            border: '1px solid #dee2e6',
+                            fontSize: '14px'
+                          }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                              <span>Subtotal ({editData.quantity} × {order.productPrice}):</span>
+                              <span>Rs. {(order.productPrice * editData.quantity).toLocaleString()}</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                              <span>Delivery Charges:</span>
+                              <span>Rs. {deliveryCharges.toLocaleString()}</span>
+                            </div>
+                            <hr style={{ margin: '8px 0', border: 'none', borderTop: '1px solid #dee2e6' }} />
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', color: '#28a745' }}>
+                              <span>Total Amount:</span>
+                              <span>Rs. {(order.productPrice * editData.quantity + deliveryCharges).toLocaleString()}</span>
+                            </div>
+                          </div>
+
                           <textarea
                             name="address"
                             value={editData.address}
@@ -1128,11 +1299,29 @@ const MyOrders = () => {
                             </div>
                           )}
 
-                          <div style={{ marginBottom: '8px' }}>
-                            <strong>Total Amount:</strong> <span style={{ color: '#28a745', fontWeight: 'bold' }}>
-                              {order.totalAmount || 'N/A'}
-                            </span>
+                          {/* Updated Total Amount Display with Breakdown */}
+                          <div style={{
+                            backgroundColor: '#f8f9fa',
+                            padding: '12px',
+                            borderRadius: '4px',
+                            border: '1px solid #dee2e6',
+                            marginBottom: '8px'
+                          }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '13px' }}>
+                              <span>Subtotal ({order.quantity} × Rs. {order.productPrice}):</span>
+                              <span>Rs. {((order.productPrice || 0) * (order.quantity || 1)).toLocaleString()}</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '13px' }}>
+                              <span>Delivery Charges:</span>
+                              <span>Rs. {(deliveryCharges).toLocaleString()}</span>
+                            </div>
+                            <hr style={{ margin: '8px 0', border: 'none', borderTop: '1px solid #dee2e6' }} />
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', color: '#28a745' }}>
+                              <span>Total Amount:</span>
+                              <span>Rs. {(((order.productPrice) * (order.quantity) + (deliveryCharges))).toLocaleString()}</span>
+                            </div>
                           </div>
+
                           {order.address && (
                             <div style={{ marginBottom: '8px', wordBreak: 'break-word' }}>
                               <strong>Address:</strong> {order.address}

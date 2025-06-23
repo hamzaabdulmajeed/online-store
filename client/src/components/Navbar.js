@@ -1,10 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ShoppingCart, User, Menu, X, Home, Settings } from 'lucide-react';
 import MyOrders from '../pages/myOrders';
+import { getMyOrders, updateOrder, cancelOrder } from '../config/api';
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+const [orders, setOrders] = useState([]);
 
+useEffect(() => {
+    const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+    const userId = localStorage.getItem('userId');
+    const authToken = localStorage.getItem('authToken');
+
+    
+
+    const fetchOrders = async () => {
+      try {
+       
+
+        const data = await getMyOrders(userId);
+        setOrders(data);
+
+        
+
+      } catch (err) {
+        console.error('Error fetching orders:', err);
+
+    };
+  }
+    fetchOrders();
+  }, );
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
@@ -65,9 +90,9 @@ const Navbar = () => {
               <div className="relative">
                 <ShoppingCart className="w-5 h-5 group-hover:scale-110 transition-transform" />
                 {/* Cart Badge */}
-                {/* <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold animate-pulse">
-                  {MyOrders.length}
-                </span> */}
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold animate-pulse">
+                  {orders.length}
+                </span>
               </div>
               <span className="font-medium">My Order</span>
             </a>
@@ -121,7 +146,7 @@ const Navbar = () => {
               >
                 <div className="relative">
                   <ShoppingCart className="w-5 h-5" />
-                  {/* <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-bold">3</span> */}
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-bold">{orders.length}</span>
                 </div>
                 <span className="font-medium">My Order</span>
               </a>

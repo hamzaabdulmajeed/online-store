@@ -10,6 +10,7 @@ import Footer from './components/footer';
 import Login from './pages/login';
 import Signup from './pages/signup';
 import MyOrders from './pages/myOrders';
+import { ToastContainer, toast } from 'react-toastify';
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(!!localStorage.getItem('token'));
@@ -17,6 +18,19 @@ function App() {
   return (
     <Router>
       <Navbar />
+          <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
+      {/* <ToastContainer /> */}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/product/:id" element={<Product />} />
