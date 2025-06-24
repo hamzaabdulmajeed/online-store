@@ -41,7 +41,7 @@ export const storage = getStorage(app);
 // Fetch products from your backend
 async function getProducts() {
   try {
-    const response = await fetch('https://online-store-backend-fdym.vercel.app/products', {
+    const response = await fetch('https://online-store-backend-fdym.vercel.app/api/products', {
       method: 'GET',
       headers: {
         "Content-Type": "application/json"
