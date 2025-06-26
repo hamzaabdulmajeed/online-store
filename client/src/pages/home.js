@@ -4,854 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import MyOrders from './myOrders.js';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-// const OrderForm = ({ product, onClose, onSubmit }) => {
-//   const [orderData, setOrderData] = useState({
-//     customerName: '',
-//     email: '',
-//     phone: '',
-//     address: '',
-//     size: '',
-//     color: '',
-//     quantity: 1,
-//     specialInstructions: '',
-//     paymentMethod: ''
-//   });
-
-//   const [showBankDetails, setShowBankDetails] = useState(false);
-//   const [paymentSlip, setPaymentSlip] = useState(null);
-//   const [slipPreview, setSlipPreview] = useState(null);
-
-//   const shoeSizes = ['40', '41', '42', '43', '44'];
-//   const colors = ['Black', 'White', 'Brown', 'Red', 'Blue', 'Gray', 'Navy'];
-//   const deliveryCharges = 200;
-
-//   // Bank details for online payment
-//   const bankDetails = {
-//     bankName: "HBL Bank",
-//     accountTitle: "Your Business Name",
-//     accountNumber: "1234567890123456",
-//     iban: "PK36HABB0000001234567890"
-//   };
-
-//   // Check if delivery address is in Karachi
-//   const isInKarachi = () => {
-//     const addressParts = orderData.address.split('|');
-//     const city = addressParts[1]?.toLowerCase().trim() || '';
-//     return city.includes('karachi');
-//   };
-
-//   // Validation functions
-//   const validateEmail = (email) => {
-//     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-//     return emailRegex.test(email);
-//   };
-
-//   const validatePhone = (phone) => {
-//     const phoneRegex = /^[\+]?[0-9][\d]{0,15}$/;
-//     return phoneRegex.test(phone.replace(/[\s\-\(\)]/g, ''));
-//   };
-// const handleChange = (e) => {
-//   const { name, value } = e.target;
-//   setOrderData(prev => ({
-//     ...prev,
-//     [name]: value
-//   }));
-
-//   // Show bank details when online payment is selected (for both Karachi and outside Karachi)
-//   if (name === 'paymentMethod' && value === 'online') {
-//     setShowBankDetails(true);
-//   } else if (name === 'paymentMethod' && value !== 'online') {
-//     setShowBankDetails(false);
-//     setPaymentSlip(null);
-//     setSlipPreview(null);
-//   }
-  
-//   // Also show bank details if address changes and payment method is already online
-//   if (name === 'address' && orderData.paymentMethod === 'online') {
-//     setShowBankDetails(true);
-//   }
-// };
-
-//   const handleSlipUpload = (e) => {
-//     const file = e.target.files[0];
-//     if (file) {
-//       if (file.size > 5 * 1024 * 1024) { // 5MB limit
-//         alert('File size should be less than 5MB');
-//         return;
-//       }
-      
-//       if (!file.type.startsWith('image/')) {
-//         alert('Please upload only image files');
-//         return;
-//       }
-
-//       setPaymentSlip(file);
-      
-//       // Create preview
-//       const reader = new FileReader();
-//       reader.onload = (e) => {
-//         setSlipPreview(e.target.result);
-//       };
-//       reader.readAsDataURL(file);
-//     }
-//   };
-
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
-    
-//     // Validate email and phone before submitting
-//     if (!validateEmail(orderData.email)) {
-//       alert('Please enter a valid email address');
-//       return;
-//     }
-    
-//     if (!validatePhone(orderData.phone)) {
-//       alert('Please enter a valid phone number');
-//       return;
-//     }
-
-//     // Validate payment method selection
-//     if (!orderData.paymentMethod) {
-//       alert('Please select a payment method');
-//       return;
-//     }
-
-//     const inKarachi = isInKarachi();
-
-//     // For outside Karachi, online payment is mandatory
-//     if (!inKarachi && orderData.paymentMethod !== 'online') {
-//       alert('Online payment is required for deliveries outside Karachi');
-//       return;
-//     }
-
-//     // For outside Karachi with online payment, payment slip is required
-//     if (!inKarachi && orderData.paymentMethod === 'online' && !paymentSlip) {
-//       alert('Please upload payment slip for online payment');
-//       return;
-//     }
-
-//     // Check authentication status
-//     const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
-//     const userId = localStorage.getItem('userId');
-    
-//     if (!isAuthenticated) {
-//       alert('Please login to place an order.');
-//       return;
-//     }
-
-//     if (!userId) {
-//       alert('User session expired. Please login again.');
-//       return;
-//     }
-
-//     const subtotal = product.price * orderData.quantity;
-//     const totalAmount = subtotal + deliveryCharges;
-
-//     const order = {
-//       ...orderData,
-//       user: userId,
-//       productId: product._id,
-//       productImage: product.image,
-//       productTitle: product.title,
-//       productPrice: product.price,
-//       subtotal: subtotal,
-//       deliveryCharges: deliveryCharges,
-//       totalAmount: totalAmount,
-//       isKarachiDelivery: inKarachi,
-//       paymentSlip: paymentSlip, // Include payment slip file
-//       orderDate: new Date().toISOString()
-//     };
-    
-//     onSubmit(order);
-//   };
-
-//   const inKarachi = isInKarachi();
-//   const subtotal = product.price * orderData.quantity;
-//   const totalAmount = subtotal + deliveryCharges;
-//   return (
-//     <div style={{
-//       position: 'fixed',
-//       top: 0,
-//       left: 0,
-//       right: 0,
-//       bottom: 0,
-//       backgroundColor: 'rgba(0,0,0,0.5)',
-//       display: 'flex',
-//       justifyContent: 'center',
-//       alignItems: 'center',
-//       zIndex: 1000
-//     }}>
-//       <div style={{
-//         backgroundColor: 'white',
-//         padding: '30px',
-//         borderRadius: '12px',
-//         maxWidth: '500px',
-//         width: '90%',
-//         maxHeight: '90vh',
-//         overflowY: 'auto',
-//         boxShadow: '0 10px 25px rgba(0,0,0,0.2)'
-//       }}>
-//         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-//           <h2 style={{ margin: 0, color: '#333' }}>Order: {product.title}</h2>
-//           <button 
-//             onClick={onClose}
-//             style={{
-//               background: 'none',
-//               border: 'none',
-//               fontSize: '24px',
-//               cursor: 'pointer',
-//               color: '#666'
-//             }}
-//           >
-//             ×
-//           </button>
-//         </div>
-
-//         <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
-//           <h4 style={{ margin: '0 0 10px 0' }}>Product Details</h4>
-//           <p style={{ margin: '5px 0' }}><strong>Price:</strong> Rs. {product.price}</p>
-//           <p style={{ margin: '5px 0' }}><strong>Description:</strong> {product.description}</p>
-//         </div>
-
-//         <form onSubmit={handleSubmit}>
-//           <div style={{ display: 'grid', gap: '15px' }}>
-//             {/* Customer Information */}
-//             <div>
-//               <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
-//                 Full Name *
-//               </label>
-//               <input
-//                 type="text"
-//                 name="customerName"
-//                 value={orderData.customerName}
-//                 onChange={handleChange}
-//                 required
-//                 style={{
-//                   width: '100%',
-//                   padding: '10px',
-//                   border: '1px solid #ddd',
-//                   borderRadius: '4px',
-//                   fontSize: '14px'
-//                 }}
-//               />
-//             </div>
-
-//             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-//               <div>
-//                 <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
-//                   Email *
-//                 </label>
-//                 <input
-//                   type="email"
-//                   name="email"
-//                   value={orderData.email}
-//                   onChange={handleChange}
-//                   required
-//                   style={{
-//                     width: '100%',
-//                     padding: '10px',
-//                     border: `1px solid ${orderData.email && !validateEmail(orderData.email) ? '#ff6b6b' : '#ddd'}`,
-//                     borderRadius: '4px',
-//                     fontSize: '14px'
-//                   }}
-//                 />
-//                 {orderData.email && !validateEmail(orderData.email) && (
-//                   <small style={{ color: '#ff6b6b', fontSize: '12px' }}>Please enter a valid email</small>
-//                 )}
-//               </div>
-//               <div>
-//                 <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
-//                   Phone *
-//                 </label>
-//                 <input
-//                   type="tel"
-//                   name="phone"
-//                   value={orderData.phone}
-//                   onChange={handleChange}
-//                   required
-//                   style={{
-//                     width: '100%',
-//                     padding: '10px',
-//                     border: `1px solid ${orderData.phone && !validatePhone(orderData.phone) ? '#ff6b6b' : '#ddd'}`,
-//                     borderRadius: '4px',
-//                     fontSize: '14px'
-//                   }}
-//                 />
-//                 {orderData.phone && !validatePhone(orderData.phone) && (
-//                   <small style={{ color: '#ff6b6b', fontSize: '12px' }}>Please enter a valid phone number</small>
-//                 )}
-//               </div>
-//             </div>
-
-//             {/* Product Specifications */}
-//             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
-//               <div>
-//                 <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
-//                   Size *
-//                 </label>
-//                 <select
-//                   name="size"
-//                   value={orderData.size}
-//                   onChange={handleChange}
-//                   required
-//                   style={{
-//                     width: '100%',
-//                     padding: '10px',
-//                     border: '1px solid #ddd',
-//                     borderRadius: '4px',
-//                     fontSize: '14px'
-//                   }}
-//                 >
-//                   <option value="">Select Size</option>
-//                   {shoeSizes.map(size => (
-//                     <option key={size} value={size}>{size}</option>
-//                   ))}
-//                 </select>
-//               </div>
-//               <div>
-//                 <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
-//                   Color *
-//                 </label>
-//                 <select
-//                   name="color"
-//                   value={orderData.color}
-//                   onChange={handleChange}
-//                   required
-//                   style={{
-//                     width: '100%',
-//                     padding: '10px',
-//                     border: '1px solid #ddd',
-//                     borderRadius: '4px',
-//                     fontSize: '14px'
-//                   }}
-//                 >
-//                   <option value="">Select Color</option>
-//                   {colors.map(color => (
-//                     <option key={color} value={color}>{color}</option>
-//                   ))}
-//                 </select>
-//               </div>
-//               <div>
-//                 <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
-//                   Quantity *
-//                 </label>
-//                 <input
-//                   type="number"
-//                   name="quantity"
-//                   value={orderData.quantity}
-//                   onChange={handleChange}
-//                   min="1"
-//                   max="10"
-//                   required
-//                   style={{
-//                     width: '100%',
-//                     padding: '10px',
-//                     border: '1px solid #ddd',
-//                     borderRadius: '4px',
-//                     fontSize: '14px'
-//                   }}
-//                 />
-//               </div>
-//             </div>
-
-//             {/* Address */}
-//             <div>
-//               <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
-//                 Delivery Address *
-//               </label>
-//               <div style={{ display: 'grid', gap: '10px' }}>
-//                 {['Street Address', 'City', 'State/Province', 'ZIP/Postal Code', 'Country'].map((field, index) => (
-//                   <input
-//                     key={field}
-//                     type="text"
-//                     name={`address_${index}`}
-//                     placeholder={field}
-//                     required
-//                     style={{
-//                       width: '100%',
-//                       padding: '10px',
-//                       border: '1px solid #ddd',
-//                       borderRadius: '4px',
-//                       fontSize: '14px'
-//                     }}
-//                     onChange={(e) => {
-//                       const addressParts = orderData.address.split('|');
-//                       addressParts[index] = e.target.value;
-//                       handleChange({
-//                         target: {
-//                           name: 'address',
-//                           value: addressParts.join('|')
-//                         }
-//                       });
-//                     }}
-//                     value={orderData.address.split('|')[index] || ''}
-//                   />
-//                 ))}
-//               </div>
-//               {/* Address Info */}
-//               <div style={{ 
-//                 marginTop: '10px', 
-//                 padding: '10px', 
-//                 backgroundColor: inKarachi ? '#d4edda' : '#fff3cd',
-//                 border: `1px solid ${inKarachi ? '#c3e6cb' : '#ffeaa7'}`,
-//                 borderRadius: '4px',
-//                 fontSize: '12px'
-//               }}>
-//                 <strong>Delivery Info:</strong> {inKarachi ? 
-//                   'Karachi delivery - COD and Online payment available' : 
-//                   'Outside Karachi - Online payment required with payment slip'
-//                 }
-//               </div>
-//             </div>
-
-//             {/* Payment Method */}
-//             <div>
-//               <label style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold' }}>
-//                 Payment Method *
-//               </label>
-//               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-//                 {inKarachi && (
-//                   <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-//                     <input
-//                       type="radio"
-//                       name="paymentMethod"
-//                       value="cod"
-//                       checked={orderData.paymentMethod === 'cod'}
-//                       onChange={handleChange}
-//                       style={{ cursor: 'pointer' }}
-//                     />
-//                     <span>Cash on Delivery (COD)</span>
-//                   </label>
-//                 )}
-//                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-//                   <input
-//                     type="radio"
-//                     name="paymentMethod"
-//                     value="online"
-//                     checked={orderData.paymentMethod === 'online'}
-//                     onChange={handleChange}
-//                     style={{ cursor: 'pointer' }}
-//                   />
-//                   <span>Online Payment (Bank Transfer)</span>
-//                 </label>
-//               </div>
-//               {!inKarachi && (
-//                 <small style={{ color: '#856404', fontSize: '12px', marginTop: '5px', display: 'block' }}>
-//                   Online payment is required for deliveries outside Karachi
-//                 </small>
-//               )}
-//             </div>
-
-//             {/* Bank Details Section */}
-//             {showBankDetails && (
-//               <div style={{
-//                 padding: '15px',
-//                 backgroundColor: '#f8f9fa',
-//                 border: '1px solid #dee2e6',
-//                 borderRadius: '8px'
-//               }}>
-//                 <h4 style={{ margin: '0 0 15px 0', color: '#495057' }}>Bank Details for Payment</h4>
-//                 <div style={{ display: 'grid', gap: '8px', fontSize: '14px' }}>
-//                   <div><strong>Bank Name:</strong> {bankDetails.bankName}</div>
-//                   <div><strong>Account Title:</strong> {bankDetails.accountTitle}</div>
-//                   <div><strong>Account Number:</strong> {bankDetails.accountNumber}</div>
-//                   <div><strong>IBAN:</strong> {bankDetails.iban}</div>
-//                 </div>
-//                 <div style={{
-//                   marginTop: '10px',
-//                   padding: '10px',
-//                   backgroundColor: '#d1ecf1',
-//                   border: '1px solid #bee5eb',
-//                   borderRadius: '4px',
-//                   fontSize: '12px',
-//                   color: '#0c5460'
-//                 }}>
-//                   <strong>Instructions:</strong> Please transfer the total amount and upload the payment slip below.
-//                 </div>
-
-//                 {/* Payment Slip Upload */}
-//                 <div style={{ marginTop: '15px' }}>
-//                   <label style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold' }}>
-//                     Upload Payment Slip *
-//                   </label>
-//                   <input
-//                     type="file"
-//                     accept="image/*"
-//                     onChange={handleSlipUpload}
-//                     style={{
-//                       width: '100%',
-//                       padding: '8px',
-//                       border: '1px solid #ddd',
-//                       borderRadius: '4px',
-//                       fontSize: '14px'
-//                     }}
-//                   />
-//                   <small style={{ color: '#666', fontSize: '12px', display: 'block', marginTop: '5px' }}>
-//                     Upload image of payment slip (Max 5MB, JPG/PNG)
-//                   </small>
-                  
-//                   {/* Payment Slip Preview */}
-//                   {slipPreview && (
-//                     <div style={{ marginTop: '10px' }}>
-//                       <strong style={{ fontSize: '14px' }}>Payment Slip Preview:</strong>
-//                       <div style={{
-//                         marginTop: '5px',
-//                         border: '1px solid #ddd',
-//                         borderRadius: '4px',
-//                         padding: '10px',
-//                         textAlign: 'center'
-//                       }}>
-//                         <img 
-//                           src={slipPreview} 
-//                           alt="Payment Slip Preview"
-//                           style={{
-//                             maxWidth: '100%',
-//                             maxHeight: '200px',
-//                             objectFit: 'contain'
-//                           }}
-//                         />
-//                       </div>
-//                     </div>
-//                   )}
-//                 </div>
-//               </div>
-//             )}
-
-//             {/* Special Instructions */}
-//             <div>
-//               <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
-//                 Special Instructions (Optional)
-//               </label>
-//               <textarea
-//                 name="specialInstructions"
-//                 value={orderData.specialInstructions}
-//                 onChange={handleChange}
-//                 rows="2"
-//                 style={{
-//                   width: '100%',
-//                   padding: '10px',
-//                   border: '1px solid #ddd',
-//                   borderRadius: '4px',
-//                   fontSize: '14px',
-//                   resize: 'vertical'
-//                 }}
-//                 placeholder="Any special delivery instructions or preferences"
-//               />
-//             </div>
-
-//             {/* Order Summary */}
-//             <div style={{ 
-//               padding: '15px', 
-//               backgroundColor: '#e7f3ff', 
-//               borderRadius: '8px',
-//               border: '1px solid #b3d9ff'
-//             }}>
-//               <h4 style={{ margin: '0 0 10px 0', color: '#0066cc' }}>Order Summary</h4>
-//               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-//                 <span>Price per item:</span>
-//                 <span>Rs. {product.price}</span>
-//               </div>
-//               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-//                 <span>Quantity:</span>
-//                 <span>{orderData.quantity}</span>
-//               </div>
-//               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-//                 <span>Subtotal:</span>
-//                 <span>Rs. {subtotal.toFixed(2)}</span>
-//               </div>
-//               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-//                 <span>Delivery Charges:</span>
-//                 <span>Rs. {deliveryCharges}</span>
-//               </div>
-//               <hr style={{ margin: '10px 0', border: 'none', borderTop: '1px solid #ccc' }} />
-//               <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '18px' }}>
-//                 <span>Total Amount:</span>
-//                 <span>Rs. {totalAmount.toFixed(2)}</span>
-//               </div>
-//               {orderData.paymentMethod && (
-//                 <div style={{ marginTop: '10px', fontSize: '14px', color: '#666' }}>
-//                   <strong>Payment Method:</strong> {orderData.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment'}
-//                 </div>
-//               )}
-//             </div>
-
-//             {/* Action Buttons */}
-//             <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-//               <button
-//                 type="button"
-//                 onClick={onClose}
-//                 style={{
-//                   flex: '1',
-//                   padding: '12px',
-//                   border: '1px solid #ddd',
-//                   borderRadius: '6px',
-//                   backgroundColor: '#f8f9fa',
-//                   color: '#666',
-//                   fontSize: '16px',
-//                   cursor: 'pointer'
-//                 }}
-//               >
-//                 Cancel
-//               </button>
-//               <button
-//                 type="submit"
-//                 style={{
-//                   flex: '2',
-//                   padding: '12px',
-//                   border: 'none',
-//                   borderRadius: '6px',
-//                   backgroundColor: '#007bff',
-//                   color: 'white',
-//                   fontSize: '16px',
-//                   fontWeight: 'bold',
-//                   cursor: 'pointer'
-//                 }}
-//               >
-//                 Place Order
-//               </button>
-//             </div>
-//           </div>
-//         </form>
-//       </div>
-//     </div>
-//   );
-// };
-
-// const ProductCard = ({ product }) => {
-//  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-//   const [showOrderForm, setShowOrderForm] = useState(false);
-//   const navigate = useNavigate();
-
-//   const nextImage = () => {
-//     if (product.image && product.image.length > 1) {
-//       setCurrentImageIndex((prev) => 
-//         prev === product.image.length - 1 ? 0 : prev + 1
-//       );
-//     }
-//   };
-  
-//   const prevImage = () => {
-//     if (product.image && product.image.length > 1) {
-//       setCurrentImageIndex((prev) => 
-//         prev === 0 ? product.image.length - 1 : prev - 1
-//       );
-//     }
-//   };
-
-//   const handleOrderSubmit = async (orderData) => {
-//     try {
-//       // Get the auth token from localStorage
-//       const token = localStorage.getItem('authToken');
-      
-//       if (!token) {
-//         alert('Authentication token missing. Please login again.');
-//         navigate('/login');
-//         return;
-//       }
-      
-//       // Pass the token to placeOrder function
-//       const result = await placeOrder(orderData, token);
-//       alert(`Order placed successfully!\nOrder ID: ${result.orderId}\nTotal: ${orderData.totalAmount}\nWe'll contact you soon!`);
-//       setShowOrderForm(false);
-//     } catch (error) {
-//       console.error('Order failed:', error);
-      
-//       // Handle authentication errors specifically
-//       if (error.message.includes('Authentication') || error.message.includes('token')) {
-//         alert('Your session has expired. Please login again.');
-//         navigate('/login');
-//       } else {
-//         alert('Failed to place order. Please try again.');
-//       }
-//     }
-//   };
-
-//   // Fixed authentication check
-//   const handleOrderClick = () => {
-//     const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
-//     const userId = localStorage.getItem('userId');
-    
-//     if (!isAuthenticated || !userId) {
-//       // Redirect to login if not authenticated or no userId
-//       navigate('/login');
-//     } else {
-//       setShowOrderForm(true);
-//     }
-//   };
-//   return (
-//     <>
-//       <div style={{ 
-//         border: '1px solid #ddd', 
-//         borderRadius: '8px', 
-//         padding: '16px', 
-//         margin: '16px',
-//         maxWidth: '300px',
-//         boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-//       }}>
-//         {/* Image carousel */}
-//         {product.image && product.image.length > 0 ? (
-//           <div style={{ position: 'relative', marginBottom: '12px' }}>
-//             <img 
-//               src={product.image[currentImageIndex]} 
-//               alt={product.title}
-//               style={{ 
-//                 width: '100%', 
-//                 height: '200px', 
-//                 objectFit: 'cover',
-//                 borderRadius: '4px'
-//               }}
-//               onError={(e) => {
-//                 e.target.src = 'https://via.placeholder.com/200?text=Image+Not+Found';
-//               }}
-//             />
-            
-//             {/* Navigation arrows - only show if multiple images */}
-//             {product.image.length > 1 && (
-//               <>
-//                 <button 
-//                   onClick={prevImage}
-//                   style={{
-//                     position: 'absolute',
-//                     left: '8px',
-//                     top: '50%',
-//                     transform: 'translateY(-50%)',
-//                     background: 'rgba(0,0,0,0.5)',
-//                     color: 'white',
-//                     border: 'none',
-//                     borderRadius: '50%',
-//                     width: '30px',
-//                     height: '30px',
-//                     cursor: 'pointer'
-//                   }}
-//                 >
-//                   ‹
-//                 </button>
-//                 <button 
-//                   onClick={nextImage}
-//                   style={{
-//                     position: 'absolute',
-//                     right: '8px',
-//                     top: '50%',
-//                     transform: 'translateY(-50%)',
-//                     background: 'rgba(0,0,0,0.5)',
-//                     color: 'white',
-//                     border: 'none',
-//                     borderRadius: '50%',
-//                     width: '30px',
-//                     height: '30px',
-//                     cursor: 'pointer'
-//                   }}
-//                 >
-//                   ›
-//                 </button>
-//               </>
-//             )}
-            
-//             {/* Image indicators */}
-//             {product.image.length > 1 && (
-//               <div style={{ 
-//                 display: 'flex', 
-//                 justifyContent: 'center', 
-//                 gap: '4px',
-//                 marginTop: '8px'
-//               }}>
-//                 {product.image.map((_, index) => (
-//                   <div
-//                     key={index}
-//                     onClick={() => setCurrentImageIndex(index)}
-//                     style={{
-//                       width: '8px',
-//                       height: '8px',
-//                       borderRadius: '50%',
-//                       background: index === currentImageIndex ? '#007bff' : '#ccc',
-//                       cursor: 'pointer'
-//                     }}
-//                   />
-//                 ))}
-//               </div>
-//             )}
-//           </div>
-//         ) : (
-//           <div style={{ 
-//             width: '100%', 
-//             height: '200px', 
-//             background: '#f0f0f0',
-//             display: 'flex',
-//             alignItems: 'center',
-//             justifyContent: 'center',
-//             borderRadius: '4px',
-//             marginBottom: '12px'
-//           }}>
-//             No Image
-//           </div>
-//         )}
-        
-//         <h3 style={{ margin: '0 0 8px 0', fontSize: '18px' }}>
-//           {product.title}
-//         </h3>
-        
-//         {product.description && (
-//           <p style={{ 
-//             margin: '0 0 8px 0', 
-//             color: '#666',
-//             fontSize: '14px'
-//           }}>
-//             {product.description}
-//           </p>
-//         )}
-        
-//         <p style={{ 
-//           margin: '0 0 12px 0', 
-//           fontSize: '20px', 
-//           fontWeight: 'bold',
-//           color: '#007bff'
-//         }}>
-//           {product.price}
-//         </p>
-        
-//         {product.image && product.image.length > 1 && (
-//           <p style={{ 
-//             margin: '0 0 12px 0', 
-//             fontSize: '12px', 
-//             color: '#999'
-//           }}>
-//             {product.image.length} images
-//           </p>
-//         )}
-
-//         {/* Order Now Button */}
-//         <button
-//           onClick={handleOrderClick} // Use the proper authentication check
-//           style={{
-//             width: '100%',
-//             padding: '12px',
-//             backgroundColor: '#28a745',
-//             color: 'white',
-//             border: 'none',
-//             borderRadius: '6px',
-//             fontSize: '16px',
-//             fontWeight: 'bold',
-//             cursor: 'pointer',
-//             transition: 'background-color 0.2s'
-//           }}
-//           onMouseOver={(e) => e.target.style.backgroundColor = '#218838'}
-//           onMouseOut={(e) => e.target.style.backgroundColor = '#28a745'}
-//         >
-//           Order Now
-//         </button>
-//       </div>
-
-//       {/* Order Form Modal */}
-//       {showOrderForm && (
-//         <OrderForm
-//           product={product}
-//           onClose={() => setShowOrderForm(false)}
-//           onSubmit={handleOrderSubmit}
-//         />
-//       )}
-//     </>
-//   );
-// };
 
 const OrderForm = ({ product, onClose, onSubmit }) => {
   const [orderData, setOrderData] = useState({
@@ -1677,6 +829,7 @@ const OrderForm = ({ product, onClose, onSubmit }) => {
     </div>
   );
 };
+
 // const ProductCard = ({ product }) => {
 //   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 //   const [showOrderForm, setShowOrderForm] = useState(false);
@@ -1738,42 +891,90 @@ const OrderForm = ({ product, onClose, onSubmit }) => {
 //     setImageLoading(false);
 //   };
 
-//   const handleOrderSubmit = async (orderData) => {
+//   const handleOrderSubmit = async (orderData, paymentSlipFile = null) => {
 //     try {
 //       const token = sessionStorage.getItem('authToken') || localStorage.getItem('authToken');
       
 //       if (!token) {
-//         alert('Authentication token missing. Please login again.');
+//         // Using toast.error instead of alert for better UX
+//         toast.error('Authentication token missing. Please login again.');
 //         navigate('/login');
 //         return;
 //       }
+
+//       // Frontend validation for online payment
+//       if (orderData.paymentMethod === 'online' && !paymentSlipFile) {
+//         toast.error('Payment slip is required for online payments. Please upload your payment slip.');
+//         return;
+//       }
       
+//       // Normalize payment method: convert 'cod' to 'cash' if needed
+//       const normalizedPaymentMethod = orderData.paymentMethod === 'cod' ? 'cash' : orderData.paymentMethod;
+      
+//       // Prepare order data with complete product information
 //       const orderWithProduct = {
 //         ...orderData,
+//         paymentMethod: normalizedPaymentMethod,
 //         product: {
 //           _id: product._id,
 //           title: product.title,
 //           description: product.description,
 //           price: product.price,
+//           color: product.colors,
+//           size: product.sizes,
 //           image: product.image
 //         },
 //         productImage: product.image,
 //         productId: product._id,
 //         productTitle: product.title,
-//         productPrice: product.price
+//         productPrice: product.price,
+//         productColor: product.colors,
+//         productSize: product.sizes
 //       };
       
-//       const result = await placeOrder(orderWithProduct, token);
-//       alert(`Order placed successfully!\nOrder ID: ${result.orderId}\nTotal: ${orderData.totalAmount}\nWe'll contact you soon!`);
+//       // Log for debugging
+//       console.log('Order data:', orderWithProduct);
+//       console.log('Payment method:', orderWithProduct.paymentMethod);
+//       console.log('Payment slip file:', paymentSlipFile);
+      
+//       // Call placeOrder with proper parameters
+//       const result = await placeOrder(
+//         orderWithProduct, 
+//         [], // No product images to upload (they're already stored)
+//         paymentSlipFile, // Payment slip file
+//         token
+//       );
+      
+//       // Success message with order details
+//       const successMessage = `Order placed successfully!\nOrder ID: ${result.orderId || result._id}\nTotal: Rs. ${orderData.totalAmount}\nPayment Method: ${orderData.paymentMethod === 'cod' || orderData.paymentMethod === 'cash' ? 'Cash on Delivery' : 'Online Payment'}\n${normalizedPaymentMethod === 'online' ? 'Payment slip uploaded successfully. once payment varified your order status will be change in my order page within 12 hour' : ''}\nWe'll contact you soon!`;
+      
+//       // Using toast.success with proper configuration
+//       toast.success(successMessage, {
+//         position: "top-right",
+//         autoClose: 5000,
+//         hideProgressBar: false,
+//         closeOnClick: true,
+//         pauseOnHover: true,
+//         draggable: true,
+//       });
+      
 //       setShowOrderForm(false);
+      
 //     } catch (error) {
 //       console.error('Order failed:', error);
       
+//       // Handle different types of errors with specific messages using toast
 //       if (error.message.includes('Authentication') || error.message.includes('token')) {
-//         alert('Your session has expired. Please login again.');
+//         toast.error('Your session has expired. Please login again.');
 //         navigate('/login');
+//       } else if (error.message.includes('Payment slip')) {
+//         toast.error('Payment slip is required for online payments. Please upload your payment slip and try again.');
+//       } else if (error.message.includes('Network')) {
+//         toast.error('Network error. Please check your connection and try again.');
+//       } else if (error.message.includes('Invalid order data') || error.message.includes('ValidationError')) {
+//         toast.error(`Invalid order information: ${error.message}`);
 //       } else {
-//         alert('Failed to place order. Please try again.');
+//         toast.error(`Failed to place order: ${error.message}`);
 //       }
 //     }
 //   };
@@ -2020,7 +1221,7 @@ const OrderForm = ({ product, onClose, onSubmit }) => {
 //               fontWeight: '700',
 //               color: '#27ae60'
 //             }}>
-//               {product.price}
+//               Rs. {product.price}
 //             </p>
             
 //             {product.image && product.image.length > 1 && (
@@ -2153,6 +1354,16 @@ const OrderForm = ({ product, onClose, onSubmit }) => {
 //             border-radius: 8px !important;
 //           }
 //         }
+        
+//         .order-button:hover {
+//           background-color: #229954 !important;
+//           transform: translateY(-1px);
+//         }
+        
+//         .nav-arrow:hover {
+//           background: rgba(0,0,0,0.8) !important;
+//           transform: translateY(-50%) scale(1.1);
+//         }
 //       `}</style>
 
 //       {/* Order Form Modal */}
@@ -2163,6 +1374,8 @@ const OrderForm = ({ product, onClose, onSubmit }) => {
 //           onSubmit={handleOrderSubmit}
 //         />
 //       )}
+      
+//       {/* ToastContainer with proper configuration */}
 //     </>
 //   );
 // };
@@ -2173,7 +1386,13 @@ const ProductCard = ({ product }) => {
   const [imageLoading, setImageLoading] = useState(true);
   const [preloadedImages, setPreloadedImages] = useState(new Set());
   const [imageLoadErrors, setImageLoadErrors] = useState(new Set());
+  const [showImageViewer, setShowImageViewer] = useState(false);
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
   const navigate = useNavigate();
+
+  // Minimum swipe distance (in px)
+  const minSwipeDistance = 50;
 
   // Preload all images when component mounts
   useEffect(() => {
@@ -2198,6 +1417,31 @@ const ProductCard = ({ product }) => {
       preloadImages();
     }
   }, [product.image]);
+
+  // Touch handlers for swipe navigation
+  const onTouchStart = (e) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe && product.image && product.image.length > 1) {
+      nextImage();
+    }
+    if (isRightSwipe && product.image && product.image.length > 1) {
+      prevImage();
+    }
+  };
 
   const nextImage = () => {
     if (product.image && product.image.length > 1) {
@@ -2224,9 +1468,33 @@ const ProductCard = ({ product }) => {
   };
 
   const handleImageError = (e) => {
-    e.target.src = 'https://via.placeholder.com/200?text=Image+Not+Found';
+    e.target.src = 'https://via.placeholder.com/400x300?text=Image+Not+Found';
     setImageLoading(false);
   };
+
+  const openImageViewer = () => {
+    setShowImageViewer(true);
+    // Prevent body scroll when modal is open
+    document.body.style.overflow = 'hidden';
+  };
+
+  const closeImageViewer = () => {
+    setShowImageViewer(false);
+    // Restore body scroll
+    document.body.style.overflow = 'auto';
+  };
+
+  // Handle escape key to close image viewer
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape' && showImageViewer) {
+        closeImageViewer();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [showImageViewer]);
 
   const handleOrderSubmit = async (orderData, paymentSlipFile = null) => {
     try {
@@ -2355,7 +1623,13 @@ const ProductCard = ({ product }) => {
       >
         {/* Image carousel */}
         {product.image && product.image.length > 0 ? (
-          <div style={{ position: 'relative', marginBottom: '8px' }}>
+          <div 
+            className="image-container"
+            style={{ position: 'relative', marginBottom: '8px' }}
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
+          >
             {/* Loading overlay */}
             {imageLoading && (
               <div style={{
@@ -2384,10 +1658,11 @@ const ProductCard = ({ product }) => {
             
             <img 
               src={imageLoadErrors.has(currentImageIndex) 
-                ? 'https://via.placeholder.com/200x150?text=No+Image'
+                ? 'https://via.placeholder.com/400x300?text=No+Image'
                 : product.image[currentImageIndex]
               } 
               alt={product.title}
+              className="product-image"
               style={{ 
                 width: '100%', 
                 height: 'auto',
@@ -2395,18 +1670,23 @@ const ProductCard = ({ product }) => {
                 objectFit: 'cover',
                 borderRadius: '6px',
                 transition: 'opacity 0.3s ease',
-                opacity: imageLoading ? 0.3 : 1
+                opacity: imageLoading ? 0.3 : 1,
+                cursor: 'pointer'
               }}
               onLoad={handleImageLoad}
               onError={handleImageError}
+              onClick={openImageViewer}
             />
             
-            {/* Navigation arrows - only show on larger screens */}
+            {/* Navigation arrows - only show on desktop */}
             {product.image.length > 1 && !imageLoading && (
               <>
                 <button 
-                  onClick={prevImage}
-                  className="nav-arrow"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    prevImage();
+                  }}
+                  className="nav-arrow nav-arrow-desktop"
                   style={{
                     position: 'absolute',
                     left: '4px',
@@ -2430,8 +1710,11 @@ const ProductCard = ({ product }) => {
                   ‹
                 </button>
                 <button 
-                  onClick={nextImage}
-                  className="nav-arrow"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    nextImage();
+                  }}
+                  className="nav-arrow nav-arrow-desktop"
                   style={{
                     position: 'absolute',
                     right: '4px',
@@ -2496,6 +1779,25 @@ const ProductCard = ({ product }) => {
                 fontWeight: '500'
               }}>
                 {currentImageIndex + 1}/{product.image.length}
+              </div>
+            )}
+
+            {/* Swipe indicator for mobile */}
+            {product.image.length > 1 && (
+              <div className="swipe-indicator" style={{
+                position: 'absolute',
+                bottom: '8px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                backgroundColor: 'rgba(0,0,0,0.6)',
+                color: 'white',
+                padding: '2px 8px',
+                borderRadius: '12px',
+                fontSize: '8px',
+                fontWeight: '400',
+                display: 'none'
+              }}>
+                👈 Swipe 👉
               </div>
             )}
           </div>
@@ -2599,6 +1901,171 @@ const ProductCard = ({ product }) => {
         </div>
       </div>
 
+      {/* Full-screen Image Viewer Modal */}
+      {showImageViewer && (
+        <div 
+          className="image-viewer-overlay"
+          style={{
+            position: 'fixed',
+            top: '0',
+            left: '0',
+            right: '0',
+            bottom: '0',
+            backgroundColor: 'rgba(0, 0, 0, 0.95)',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px'
+          }}
+          onClick={closeImageViewer}
+        >
+          {/* Close button */}
+          <button
+            onClick={closeImageViewer}
+            style={{
+              position: 'absolute',
+              top: '20px',
+              right: '20px',
+              background: 'rgba(255, 255, 255, 0.2)',
+              border: 'none',
+              borderRadius: '50%',
+              width: '40px',
+              height: '40px',
+              color: 'white',
+              fontSize: '20px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 10001
+            }}
+          >
+            ×
+          </button>
+
+          {/* Image container */}
+          <div 
+            className="viewer-image-container"
+            style={{
+              position: 'relative',
+              maxWidth: '90vw',
+              maxHeight: '90vh',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={imageLoadErrors.has(currentImageIndex) 
+                ? 'https://via.placeholder.com/800x600?text=No+Image'
+                : product.image[currentImageIndex]
+              }
+              alt={product.title}
+              style={{
+                maxWidth: '100%',
+                maxHeight: '100%',
+                objectFit: 'contain',
+                borderRadius: '8px'
+              }}
+            />
+
+            {/* Navigation arrows in viewer */}
+            {product.image.length > 1 && (
+              <>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    prevImage();
+                  }}
+                  style={{
+                    position: 'absolute',
+                    left: '-60px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'rgba(255, 255, 255, 0.2)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '50%',
+                    width: '50px',
+                    height: '50px',
+                    cursor: 'pointer',
+                    fontSize: '24px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  ‹
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    nextImage();
+                  }}
+                  style={{
+                    position: 'absolute',
+                    right: '-60px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'rgba(255, 255, 255, 0.2)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '50%',
+                    width: '50px',
+                    height: '50px',
+                    cursor: 'pointer',
+                    fontSize: '24px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  ›
+                </button>
+              </>
+            )}
+          </div>
+
+          {/* Image counter in viewer */}
+          {product.image.length > 1 && (
+            <div style={{
+              position: 'absolute',
+              bottom: '30px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              color: 'white',
+              padding: '8px 16px',
+              borderRadius: '20px',
+              fontSize: '14px',
+              fontWeight: '500'
+            }}>
+              {currentImageIndex + 1} / {product.image.length}
+            </div>
+          )}
+
+          {/* Swipe instruction for mobile */}
+          <div className="viewer-swipe-instruction" style={{
+            position: 'absolute',
+            bottom: '80px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            color: 'rgba(255, 255, 255, 0.7)',
+            fontSize: '12px',
+            display: 'none'
+          }}>
+            Swipe left or right to navigate
+          </div>
+        </div>
+      )}
+
       {/* Responsive CSS */}
       <style>{`
         @keyframes spin {
@@ -2610,35 +2077,61 @@ const ProductCard = ({ product }) => {
         @media (max-width: 768px) {
           .product-card {
             border-radius: 6px !important;
-            padding: 6px !important;
+            padding: 8px !important;
             box-shadow: 0 1px 4px rgba(0,0,0,0.1) !important;
           }
           
+          .image-container {
+            margin-bottom: 10px !important;
+          }
+          
+          .product-image {
+            aspect-ratio: 1.2 !important; /* Slightly wider aspect ratio for mobile */
+            border-radius: 8px !important;
+          }
+          
           .product-title {
-            font-size: 11px !important;
-            margin-bottom: 4px !important;
+            font-size: 13px !important;
+            margin-bottom: 6px !important;
           }
           
           .product-description {
-            font-size: 9px !important;
-            margin-bottom: 6px !important;
-            -webkit-line-clamp: 1 !important;
+            font-size: 11px !important;
+            margin-bottom: 8px !important;
+            -webkit-line-clamp: 2 !important;
           }
           
           .product-price {
-            font-size: 12px !important;
+            font-size: 15px !important;
           }
           
           .order-button {
-            padding: 6px 2px !important;
-            font-size: 9px !important;
-            border-radius: 4px !important;
+            padding: 10px 8px !important;
+            font-size: 11px !important;
+            border-radius: 6px !important;
           }
           
-          .nav-arrow {
-            width: 20px !important;
-            height: 20px !important;
-            font-size: 10px !important;
+          /* Hide navigation arrows on mobile */
+          .nav-arrow-desktop {
+            display: none !important;
+          }
+          
+          /* Show swipe indicator on mobile */
+          .swipe-indicator {
+            display: block !important;
+          }
+          
+          /* Mobile image viewer adjustments */
+          .image-viewer-overlay {
+            padding: 10px !important;
+          }
+          
+          .viewer-image-container button {
+            display: none !important;
+          }
+          
+          .viewer-swipe-instruction {
+            display: block !important;
           }
         }
         
@@ -2647,6 +2140,10 @@ const ProductCard = ({ product }) => {
           .product-card {
             padding: 12px !important;
             max-width: 280px !important;
+          }
+          
+          .product-image {
+            aspect-ratio: 1 !important;
           }
           
           .product-title {
@@ -2661,6 +2158,10 @@ const ProductCard = ({ product }) => {
             padding: 10px !important;
             font-size: 12px !important;
           }
+          
+          .swipe-indicator {
+            display: none !important;
+          }
         }
         
         /* Desktop styles */
@@ -2668,6 +2169,10 @@ const ProductCard = ({ product }) => {
           .product-card {
             padding: 16px !important;
             max-width: 320px !important;
+          }
+          
+          .product-image {
+            aspect-ratio: 1 !important;
           }
           
           .product-title {
@@ -2690,6 +2195,10 @@ const ProductCard = ({ product }) => {
             font-size: 16px !important;
             border-radius: 8px !important;
           }
+          
+          .swipe-indicator {
+            display: none !important;
+          }
         }
         
         .order-button:hover {
@@ -2700,6 +2209,27 @@ const ProductCard = ({ product }) => {
         .nav-arrow:hover {
           background: rgba(0,0,0,0.8) !important;
           transform: translateY(-50%) scale(1.1);
+        }
+        
+        /* Improve touch targets on mobile */
+        @media (max-width: 768px) {
+          .image-container {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+          }
+          
+          .product-image {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+          }
         }
       `}</style>
 
@@ -2712,10 +2242,11 @@ const ProductCard = ({ product }) => {
         />
       )}
       
-      {/* ToastContainer with proper configuration */}
+      
     </>
   );
-};
+}
+
 const setUserSession = (userData) => {
   localStorage.setItem('isAuthenticated', 'true');
   localStorage.setItem('userId', userData.id || userData._id);
