@@ -1784,21 +1784,22 @@ const ProductCard = ({ product }) => {
 
             {/* Swipe indicator for mobile */}
             {product.image.length > 1 && (
-              <div className="swipe-indicator" style={{
-                position: 'absolute',
-                bottom: '8px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                backgroundColor: 'rgba(0,0,0,0.6)',
-                color: 'white',
-                padding: '2px 8px',
-                borderRadius: '12px',
-                fontSize: '8px',
-                fontWeight: '400',
-                display: 'none'
-              }}>
-                👈 Swipe 👉
-              </div>
+              // <div className="swipe-indicator" style={{
+              //   position: 'absolute',
+              //   bottom: '8px',
+              //   left: '50%',
+              //   transform: 'translateX(-50%)',
+              //   backgroundColor: 'rgba(0,0,0,0.6)',
+              //   color: 'white',
+              //   padding: '2px 8px',
+              //   borderRadius: '12px',
+              //   fontSize: '8px',
+              //   fontWeight: '400',
+              //   display: 'none'
+              // }}>
+              //   {/* 👈 Swipe 👉 */}
+              // </div>
+              <div></div>
             )}
           </div>
         ) : (
