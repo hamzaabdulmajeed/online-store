@@ -2,8 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { uploadAllImages } from '../config/api.js';
+import { useNavigate } from 'react-router-dom';
 
-const AdminDashboard = () => {
+const AdminDashboard = ({ setLoggedIn }) => {
   const [activeTab, setActiveTab] = useState('orders');
   const [orders, setOrders] = useState([]);
   const [orderStats, setOrderStats] = useState({});
@@ -30,6 +31,7 @@ const AdminDashboard = () => {
   const [paymentSlipModal, setPaymentSlipModal] = useState(null);
   const [imageLoadingStates, setImageLoadingStates] = useState({});
   const [imageLoadErrors, setImageLoadErrors] = useState({});
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (activeTab === 'orders') {
@@ -41,33 +43,77 @@ const AdminDashboard = () => {
   const getToken = () => localStorage.getItem('token');
 
   // Fetch orders
-  const fetchOrders = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get('https://online-store-backend-fdym.vercel.app/api/orders', {
-        headers: { Authorization: `Bearer ${getToken()}` },
-        params: { status: statusFilter }
-      });
-      setOrders(response.data.orders);
-    } catch (error) {
-      console.error('Error fetching orders:', error);
-      alert('Error fetching orders');
-    } finally {
-      setLoading(false);
-    }
-  };
+  // const fetchOrders = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const response = await axios.get('https://online-store-backend-fdym.vercel.app/api/orders', {
+  //       headers: { Authorization: `Bearer ${getToken()}` },
+  //       params: { status: statusFilter }
+  //     });
+  //     setOrders(response.data.orders);
+  //   } catch (error) {
+  //     console.error('Error fetching orders:', error);
+  //     alert('Error fetching orders');
+  //   } finally {
+  //     setLoading(false);
+  //     navigate('/admin');
+  //   }
+  // };
 
-  // Fetch order statistics
-  const fetchOrderStats = async () => {
-    try {
-      const response = await axios.get('https://online-store-backend-fdym.vercel.app/api/orders/stats/summary', {
-        headers: { Authorization: `Bearer ${getToken()}` }
-      });
-      setOrderStats(response.data);
-    } catch (error) {
-      console.error('Error fetching order stats:', error);
+  // // Fetch order statistics
+  // const fetchOrderStats = async () => {
+  //   try {
+  //     const response = await axios.get('https://online-store-backend-fdym.vercel.app/api/orders/stats/summary', {
+  //       headers: { Authorization: `Bearer ${getToken()}` }
+  //     });
+  //     setOrderStats(response.data);
+  //   } catch (error) {
+  //     console.error('Error fetching order stats:', error);
+  //   }
+  // };
+
+const fetchOrders = async () => {
+  setLoading(true);
+  try {
+    const response = await axios.get('https://online-store-backend-fdym.vercel.app/api/orders', {
+      headers: { Authorization: `Bearer ${getToken()}` },
+      params: { status: statusFilter }
+    });
+    setOrders(response.data.orders);
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    
+    // Check if it's an authentication error
+    if (error.response && error.response.status === 401) {
+      // Clear token and redirect to login
+      localStorage.removeItem('token');
+      setLoggedIn(false); // You'll need to pass this from parent or use context
+      navigate('/admin');
+    } else {
+      alert('Error fetching orders');
     }
-  };
+  } finally {
+    setLoading(false);
+  }
+};
+
+const fetchOrderStats = async () => {
+  try {
+    const response = await axios.get('https://online-store-backend-fdym.vercel.app/api/orders/stats/summary', {
+      headers: { Authorization: `Bearer ${getToken()}` }
+    });
+    setOrderStats(response.data);
+  } catch (error) {
+    console.error('Error fetching order stats:', error);
+    
+    // Check if it's an authentication error
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem('token');
+      setLoggedIn(false);
+      navigate('/admin');
+    }
+  }
+};
 
   // Update order status
   const updateOrderStatus = async (orderId, newStatus) => {

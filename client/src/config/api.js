@@ -181,93 +181,6 @@ async function getProducts() {
   }
 };
 
-// ✅ Upload multiple images to Firebase Storage
-// const uploadAllImages = async (imageFiles) => {
-//   if (!imageFiles || imageFiles.length === 0) {
-//     console.log("No images to upload");
-//     return [];
-//   }
-
-//   console.log(`Starting upload of ${imageFiles.length} images...`);
-//   const urls = [];
-  
-//   try {
-//     // Upload images sequentially to avoid overwhelming Firebase
-//     for (let i = 0; i < imageFiles.length; i++) {
-//       const file = imageFiles[i];
-//       if (file && file.type.startsWith('image/')) {
-//         console.log(`Uploading image ${i + 1}/${imageFiles.length}: ${file.name}`);
-//         const url = await uploadImageAndGetURL(file);
-//         urls.push(url);
-//       } else {
-//         console.warn(`Skipping invalid file: ${file?.name || 'unknown'}`);
-//       }
-//     }
-    
-//     console.log(`Successfully uploaded ${urls.length} images`);
-//     return urls;
-    
-//   } catch (error) {
-//     console.error("Error in uploadAllImages:", error);
-//     throw error;
-//   }
-// };
-
-
-// export const placeOrder = async (orderData, token = null) => {
-//   // If token not provided, try to get it from localStorage
-//   const authToken = token || localStorage.getItem('authToken');
-  
-//   // Ensure userId is present
-//   if (!orderData.user) {
-//     throw new Error('User authentication required. Please login again.');
-//   }
-
-//   // Ensure token is present
-//   if (!authToken) {
-//     throw new Error('Authentication token required. Please login again.');
-//   }
-
-//   try {
-//     const response = await fetch('http://localhost:3001/api/orders', {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json',
-//         Authorization: `Bearer ${authToken}`
-//       },
-//       body: JSON.stringify(orderData)
-//     });
-
-//     if (!response.ok) {
-//       // Handle different HTTP status codes
-//       if (response.status === 401) {
-//         throw new Error('Authentication failed. Please login again.');
-//       } else if (response.status === 403) {
-//         throw new Error('Access denied. Please check your permissions.');
-//       } else if (response.status === 400) {
-//         const error = await response.json();
-//         throw new Error(error.error || error.message || 'Invalid order data.');
-//       } else if (response.status >= 500) {
-//         throw new Error('Server error. Please try again later.');
-//       }
-      
-//       const error = await response.json();
-//       throw new Error(error.error || error.message || 'Failed to place order');
-//     }
-
-//     return response.json();
-    
-//   } catch (error) {
-//     // Handle network errors
-//     if (error.name === 'TypeError' && error.message.includes('fetch')) {
-//       throw new Error('Network error. Please check your connection.');
-//     }
-    
-//     // Re-throw the error if it's already a custom error
-//     throw error;
-//   }
-// };
-
 export const placeOrder = async (orderData, productImages = [], paymentSlipFile = null, token = null) => {
   // If token not provided, try to get it from localStorage
   const authToken = token || localStorage.getItem('authToken');
@@ -353,7 +266,7 @@ export const getOrders = async () => {
   return response.data;
 };
 
-//   const authToken = localStorage.getItem('authToken');
+
   
 //   if (!authToken) {
 //     throw new Error('Authentication token required. Please login again.');

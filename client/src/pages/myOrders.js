@@ -157,45 +157,6 @@ const MyOrders = () => {
     return phoneRegex.test(phone.replace(/[\s\-\(\)]/g, ''));
   };
 
-  //   const getAvailableOptions = (order) => {
-  //   // Get available colors from the product data from API
-  //   let availableColors = [];
-
-  //   // Check multiple possible locations for colors
-  //   if (order.product?.colors && Array.isArray(order.product.colors)) {
-  //     availableColors = order.product.colors;
-  //   } else if (order.product?.color && Array.isArray(order.product.color)) {
-  //     availableColors = order.product.color;
-  //   } else if (order.productColor && Array.isArray(order.productColor)) {
-  //     availableColors = order.productColor;
-  //   } else if (order.colors && Array.isArray(order.colors)) {
-  //     availableColors = order.colors;
-  //   }
-
-  //   // Get available sizes from the product data from API
-  //   let availableSizes = [];
-
-  //   // Check multiple possible locations for sizes
-  //   if (order.product?.sizes && Array.isArray(order.product.sizes)) {
-  //     availableSizes = order.product.sizes;
-  //   } else if (order.product?.size && Array.isArray(order.product.size)) {
-  //     availableSizes = order.product.size;
-  //   } else if (order.productSize && Array.isArray(order.productSize)) {
-  //     availableSizes = order.productSize;
-  //   } else if (order.sizes && Array.isArray(order.sizes)) {
-  //     availableSizes = order.sizes;
-  //   }
-
-  //   console.log('Order data for debugging:', order);
-  //   console.log('Available colors:', availableColors);
-  //   console.log('Available sizes:', availableSizes);
-
-  //   return { availableColors, availableSizes };
-  // };
-
-
-  // Handle starting edit mode
-
   const getAvailableOptions = (order) => {
     // Get available colors from the populated product data
     let availableColors = [];
@@ -1166,43 +1127,6 @@ const MyOrders = () => {
                           </div>
                         </div>
                       ) : (
-                        // View Mode
-                        // <div style={{ fontSize: '14px', lineHeight: '1.6' }}>
-                        //   <div style={{ marginBottom: '8px', wordBreak: 'break-word' }}>
-                        //     <strong>Customer:</strong> {order.customerName || 'N/A'}
-                        //   </div>
-                        //   <div style={{ marginBottom: '8px', wordBreak: 'break-all' }}>
-                        //     <strong>Email:</strong> {order.email || 'N/A'}
-                        //   </div>
-                        //   <div style={{ marginBottom: '8px', wordBreak: 'break-word' }}>
-                        //     <strong>Phone:</strong> {order.phone || 'N/A'}
-                        //   </div>
-                        //   <div style={{ marginBottom: '8px' }}>
-                        //     <strong>Quantity:</strong> {order.quantity || 1}
-                        //   </div>
-                        //   <div style={{ marginBottom: '8px' }}>
-                        //     <strong>Size:</strong> {order.size || 'N/A'}
-                        //   </div>
-                        //   <div style={{ marginBottom: '8px' }}>
-                        //     <strong>Color:</strong> {order.color || 'N/A'}
-                        //   </div>
-
-                        //   <div style={{ marginBottom: '8px' }}>
-                        //     <strong>Total Amount:</strong> <span style={{ color: '#28a745', fontWeight: 'bold' }}>
-                        //       {order.totalAmount || 'N/A'}
-                        //     </span>
-                        //   </div>
-                        //   {order.address && (
-                        //     <div style={{ marginBottom: '8px', wordBreak: 'break-word' }}>
-                        //       <strong>Address:</strong> {order.address}
-                        //     </div>
-                        //   )}
-                        //   {order.specialInstructions && (
-                        //     <div style={{ marginBottom: '8px', wordBreak: 'break-word' }}>
-                        //       <strong>Special Instructions:</strong> {order.specialInstructions}
-                        //     </div>
-                        //   )}
-                        // </div>
                         <div style={{ fontSize: '14px', lineHeight: '1.6' }}>
                           <div style={{ marginBottom: '8px', wordBreak: 'break-word' }}>
                             <strong>Customer:</strong> {order.customerName || 'N/A'}
