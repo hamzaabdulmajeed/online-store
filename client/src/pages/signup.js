@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+// const Signup = () => {
 //   const [email, setEmail] = useState('');
 //   const [password, setPassword] = useState('');
 //   const [error, setError] = useState('');
@@ -78,42 +79,95 @@ const Signup = () => {
   const [password, setPassword] = useState('');
   const [name, setName] = useState(''); // Added name field
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSignup = async (e) => {
-    e.preventDefault();
-    setError('');
+  // Helper function to set user session (same as Login component)
+  const setUserSession = (userData, token) => {
+    localStorage.setItem('isAuthenticated', 'true');
+    localStorage.setItem('authToken', token);
+    localStorage.setItem('userId', userData.id || userData._id);
+    localStorage.setItem('userEmail', userData.email);
+    localStorage.setItem('userName', userData.name || userData.username || '');
+    
+    // Store admin status if available
+    if (userData.isAdmin !== undefined) {
+      localStorage.setItem('isAdmin', userData.isAdmin.toString());
+    }
+  };
 
+  const handleSignup = async (signupData) => {
+    setIsLoading(true);
     try {
-      const res = await axios.post('https://online-store-backend-fdym.vercel.app/api/auth/signup', { 
-        email, 
-        password, 
-        name 
+      const response = await fetch('https://online-store-backend-fdym.vercel.app/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(signupData)
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Signup failed');
+      }
+
+      const data = await response.json();
+      
+      // Check if we have the required data
+      if (!data.token) {
+        throw new Error('No authentication token received');
+      }
+      
+      if (!data.user || !data.user.id) {
+        throw new Error('Invalid user data received');
+      }
+      
+      // Store authentication data using the helper function
+      setUserSession(data.user, data.token);
+      
+      console.log('Signup successful', {
+        userId: data.user.id,
+        email: data.user.email,
+        isAdmin: data.user.isAdmin
       });
       
-      // Now backend returns both token and user info
-      const { token, user } = res.data;
-
-      // Store all authentication data (matching your ProductCard expectations)
-      localStorage.setItem('authToken', token); // Changed from 'token' to 'authToken'
-      localStorage.setItem('token', token); // Keep this for backward compatibility
-      localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('userId', user.id);
-      localStorage.setItem('userName', user.name);
-      localStorage.setItem('userEmail', user.email);
-      localStorage.setItem('isAdmin', user.isAdmin.toString());
-      
-      // Also store in sessionStorage (your ProductCard checks both)
-      sessionStorage.setItem('authToken', token);
-
-      // Success message
-    //   alert(`Welcome ${user.name}! Your account has been created and you're logged in.`);
-      
+      // Navigate to dashboard or home page (user is automatically logged in)
       navigate('/');
-    } catch (err) {
-      console.error(err);
-      setError(err.response?.data?.message || 'Signup failed. Please try again.');
+      
+    } catch (error) {
+      console.error('Signup error:', error.message);
+      setError(error.message);
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError(''); // Clear previous errors
+    
+    // Basic validation
+    if (!email.trim() || !password.trim() || !name.trim()) {
+      setError('Please fill in all fields');
+      return;
+    }
+    
+    // Password validation
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      return;
+    }
+    
+    // Create clean signup data object
+    const signupData = {
+      name: name.trim(),
+      email: email.trim(),
+      password
+    };
+    
+    // Call handleSignup with clean data
+    await handleSignup(signupData);
   };
 
   return (
@@ -127,14 +181,15 @@ const Signup = () => {
           </div>
         )}
 
-        <form onSubmit={handleSignup} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="text"
             placeholder="Full Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-400"
+            disabled={isLoading}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-400 disabled:bg-gray-100"
           />
 
           <input
@@ -143,7 +198,8 @@ const Signup = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-400"
+            disabled={isLoading}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-400 disabled:bg-gray-100"
           />
 
           <input
@@ -152,14 +208,16 @@ const Signup = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-400"
+            disabled={isLoading}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-400 disabled:bg-gray-100"
           />
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
+            disabled={isLoading}
+            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition disabled:bg-blue-400 disabled:cursor-not-allowed"
           >
-            Sign Up
+            {isLoading ? 'Creating Account...' : 'Sign Up'}
           </button>
         </form>
 

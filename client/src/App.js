@@ -37,7 +37,7 @@ function App() {
         <Route path="/myorder" element={<MyOrders />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        {/* <Route
+        <Route
           path="/admin"
           element={
             loggedIn ? (
@@ -46,8 +46,8 @@ function App() {
               <AdminLogin onLogin={() => setLoggedIn(true)} />
             )
           }
-        /> */}
-        <Route
+        />
+        {/* <Route
           path="/admin"
           element={
             loggedIn ? (
@@ -56,7 +56,7 @@ function App() {
               <AdminLogin onLogin={() => setLoggedIn(true)} />
             )
           }
-        />
+        /> */}
       </Routes>
       <Footer />
     </Router>
